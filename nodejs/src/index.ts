@@ -5,7 +5,7 @@ import {zValidator} from '@hono/zod-validator';
 import {type Context, Hono} from 'hono';
 import {requestId} from 'hono/request-id';
 import {pinoHttp} from 'pino-http';
-
+import {mkdirSync} from 'fs'; 
 import {AgentService} from './api/agent';
 import {CheckoutService, zCompleteCheckoutRequest} from './api/checkout';
 import {DiscoveryService} from './api/discovery';
@@ -17,6 +17,7 @@ import {IdParamSchema, prettyValidation} from './utils/validation';
 
 const app = new Hono();
 
+mkdirSync('databases', { recursive: true });
 initDbs('databases/products.db', 'databases/transactions.db');
 
 const agentService = new AgentService();
