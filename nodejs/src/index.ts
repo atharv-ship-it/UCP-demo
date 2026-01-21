@@ -11,7 +11,7 @@ import {CheckoutService, zCompleteCheckoutRequest} from './api/checkout';
 import {DiscoveryService} from './api/discovery';
 import {OrderService} from './api/order';
 import {TestingService} from './api/testing';
-import {initDbs} from './data/db';
+import {initDbs, getProductsDb, getTransactionsDb} from './data/db';
 import {ExtendedCheckoutCreateRequestSchema, ExtendedCheckoutUpdateRequestSchema, OrderSchema,} from './models';
 import {IdParamSchema, prettyValidation} from './utils/validation';
 
@@ -19,6 +19,43 @@ const app = new Hono();
 
 mkdirSync('databases', { recursive: true });
 initDbs('databases/products.db', 'databases/transactions.db');
+
+// Seed database with initial data
+function seedDatabase() {
+  const productsDb = getProductsDb();
+  const transactionsDb = getTransactionsDb();
+
+  // Check if products already exist
+  const existingProducts = productsDb.prepare('SELECT COUNT(*) as count FROM products').get() as { count: number };
+
+  if (existingProducts.count === 0) {
+    console.log('Seeding database with initial data...');
+
+    // Insert products
+    const insertProduct = productsDb.prepare('INSERT INTO products (id, title, price, image_url) VALUES (?, ?, ?, ?)');
+    insertProduct.run('bouquet_roses', 'Bouquet of Red Roses', 3500, 'https://example.com/roses.jpg');
+    insertProduct.run('pot_ceramic', 'Ceramic Pot', 1500, 'https://example.com/pot.jpg');
+    insertProduct.run('bouquet_sunflowers', 'Sunflower Bundle', 2500, 'https://example.com/sunflowers.jpg');
+    insertProduct.run('bouquet_tulips', 'Spring Tulips', 3000, 'https://example.com/tulips.jpg');
+    insertProduct.run('orchid_white', 'White Orchid', 4500, 'https://example.com/orchid.jpg');
+    insertProduct.run('gardenias', 'Gardenias', 2000, 'https://example.com/gardenias.jpg');
+
+    // Insert inventory
+    const insertInventory = transactionsDb.prepare('INSERT INTO inventory (product_id, quantity) VALUES (?, ?)');
+    insertInventory.run('bouquet_roses', 1000);
+    insertInventory.run('pot_ceramic', 2000);
+    insertInventory.run('bouquet_sunflowers', 500);
+    insertInventory.run('bouquet_tulips', 1500);
+    insertInventory.run('orchid_white', 800);
+    insertInventory.run('gardenias', 100);
+
+    console.log('Database seeded successfully!');
+  } else {
+    console.log('Database already contains data, skipping seed.');
+  }
+}
+
+seedDatabase();
 
 const agentService = new AgentService();
 const checkoutService = new CheckoutService();
