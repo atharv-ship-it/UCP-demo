@@ -2,768 +2,100 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agentic Commerce POC</title>
-
-  <style>
-    /* ---------- Reset ---------- */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    /* ---------- Base ---------- */
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #eaf6ff 0%, #f6fbff 50%, #ffffff 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      color: #1f2937;
-    }
-
-    /* ---------- Layout ---------- */
-    .main-container {
-      width: 100%;
-      max-width: 1100px;
-      display: flex;
-      gap: 24px;
-      align-items: flex-start;
-    }
-
-    /* ---------- Glass Card Base ---------- */
-    .glass {
-      background: rgba(255, 255, 255, 0.65);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.5);
-      box-shadow:
-        0 20px 40px rgba(31, 41, 55, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.6);
-    }
-
-    /* ---------- Progress Card ---------- */
-    .progress-card {
-      flex: 1;
-      min-width: 320px;
-      padding: 24px;
-      display: none;
-    }
-
-    .progress-card.visible {
-      display: block;
-    }
-
-    .progress-header {
-      font-size: 15px;
-      font-weight: 600;
-      color: #111827;
-      margin-bottom: 18px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-    }
-
-    .progress-steps {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .progress-step {
-      display: flex;
-      gap: 12px;
-      padding: 12px 14px;
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.7);
-      border-left: 4px solid transparent;
-    }
-
-    .progress-step.done {
-      border-left-color: #22c55e;
-      background: rgba(34, 197, 94, 0.08);
-    }
-
-    .progress-step.pending {
-      border-left-color: #3b82f6;
-      background: rgba(59, 130, 246, 0.08);
-    }
-
-    .step-icon {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: 700;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-
-    .progress-step.done .step-icon {
-      background: #22c55e;
-      color: #ffffff;
-    }
-
-    .progress-step.pending .step-icon {
-      border: 2px solid #3b82f6;
-      border-top-color: transparent;
-      animation: spin 0.8s linear infinite;
-    }
-
-    .step-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: #111827;
-    }
-
-    .step-detail {
-      font-size: 11px;
-      color: #6b7280;
-      margin-top: 2px;
-    }
-
-    /* ---------- Order Confirmation ---------- */
-    .order-confirmation {
-      margin-top: 18px;
-      padding: 16px;
-      border-radius: 14px;
-      background: linear-gradient(
-        135deg,
-        rgba(34, 197, 94, 0.15),
-        rgba(34, 197, 94, 0.05)
-      );
-      border: 1px solid rgba(34, 197, 94, 0.3);
-    }
-
-    .order-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-      font-weight: 700;
-      color: #15803d;
-      margin-bottom: 12px;
-    }
-
-    .order-header-icon {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: #22c55e;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-    }
-
-    .order-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 6px 0;
-      font-size: 12px;
-    }
-
-    .order-label {
-      color: #6b7280;
-    }
-
-    .order-value {
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      color: #111827;
-    }
-
-    .order-row:last-child {
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    /* ---------- Chat Box ---------- */
-    .chat-box {
-      flex: 1;
-      min-width: 380px;
-      padding: 32px;
-    }
-
-    h3 {
-      font-size: 26px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #2563eb, #06b6d4);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .subtitle {
-      margin-top: 6px;
-      font-size: 13px;
-      color: #6b7280;
-    }
-
-    /* ---------- Input ---------- */
-    .input-group {
-      margin-top: 24px;
-      display: flex;
-      gap: 12px;
-    }
-
-    input,
-    select {
-      flex: 1;
-      padding: 14px 16px;
-      border-radius: 14px;
-      font-size: 14px;
-      border: 1px solid rgba(0, 0, 0, 0.08);
-      background: rgba(255, 255, 255, 0.85);
-      color: #111827;
-    }
-
-    input::placeholder {
-      color: #9ca3af;
-    }
-
-    input:focus,
-    select:focus {
-      outline: none;
-      border-color: #3b82f6;
-    }
-
-    button {
-      padding: 14px 22px;
-      border-radius: 14px;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-      color: white;
-      background: linear-gradient(135deg, #3b82f6, #2563eb);
-      box-shadow: 0 10px 20px rgba(59, 130, 246, 0.25);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-
-    button:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 14px 28px rgba(59, 130, 246, 0.35);
-    }
-
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    /* ---------- Chat Messages ---------- */
-    .chat-messages {
-      margin-top: 20px;
-      max-height: 320px;
-      overflow-y: auto;
-    }
-
-    .chat-message {
-      padding: 14px 16px;
-      border-radius: 14px;
-      margin-bottom: 10px;
-      background: rgba(255, 255, 255, 0.85);
-      border: 1px solid rgba(0, 0, 0, 0.06);
-      font-size: 14px;
-    }
-
-    .chat-message.user {
-      background: rgba(59, 130, 246, 0.1);
-      border-color: rgba(59, 130, 246, 0.2);
-    }
-
-    .chat-message.error {
-      background: rgba(239, 68, 68, 0.1);
-      border-color: rgba(239, 68, 68, 0.3);
-      color: #b91c1c;
-    }
-
-    .message-label {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      margin-bottom: 6px;
-      color: #6b7280;
-    }
-
-    /* ---------- Forms ---------- */
-    .input-form {
-      margin-top: 20px;
-      padding: 20px;
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.75);
-      border: 1px solid rgba(0, 0, 0, 0.06);
-    }
-
-    .form-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: #2563eb;
-      margin-bottom: 16px;
-    }
-
-    .form-row {
-      margin-bottom: 12px;
-    }
-
-    .form-row label {
-      font-size: 11px;
-      color: #6b7280;
-      margin-bottom: 6px;
-      display: block;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .form-actions {
-      margin-top: 16px;
-      display: flex;
-      gap: 12px;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    @media (max-width: 900px) {
-      .main-container {
-        flex-direction: column-reverse;
-      }
-      .chat-box,
-      .progress-card {
-        min-width: 100%;
-      }
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gemini - Lennox AC Assistant</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
-
 <body>
-  <div class="main-container">
-    <div id="progressCard" class="progress-card glass">
-      <div class="progress-header">Order Progress</div>
-      <div id="progressSteps" class="progress-steps"></div>
-      <div id="orderConfirmation"></div>
-    </div>
+  <div class="app-container">
+    <!-- Minimal Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <button class="icon-btn" id="menuToggle">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+        <button class="icon-btn" id="newChat" title="New chat">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="sidebar-bottom">
+        <button class="icon-btn" id="settingsBtn" title="Settings">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </aside>
 
-    <div class="chat-box glass">
-      <h3>Agentic Shopping Assistant</h3>
-      <p class="subtitle">AI-powered shopping, without friction</p>
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <span class="app-title">Gemini</span>
+        </div>
+      </header>
 
-      <div class="input-group">
-        <input id="query" placeholder="What would you like to buy today?" onkeypress="if(event.key==='Enter') send()" />
-        <button id="sendBtn" onclick="send()">Send</button>
+      <!-- Chat Container -->
+      <div class="chat-container" id="chatContainer">
+        <!-- Welcome Screen -->
+        <div class="welcome-screen" id="welcomeScreen">
+          <div class="welcome-content">
+            <div class="gemini-sparkle">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <path d="M16 2L18.5 12L28 16L18.5 20L16 30L13.5 20L4 16L13.5 12L16 2Z" fill="url(#sparkle-gradient)"/>
+                <defs>
+                  <linearGradient id="sparkle-gradient" x1="4" y1="2" x2="28" y2="30" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#4285f4"/>
+                    <stop offset="0.5" stop-color="#9b72cb"/>
+                    <stop offset="1" stop-color="#d96570"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+              <span class="hi-text">Hi</span>
+            </div>
+            <h1 class="welcome-title">How can I help you?</h1>
+          </div>
+        </div>
+
+        <!-- Messages Container -->
+        <div class="messages" id="messages"></div>
       </div>
 
-      <div id="chatMessages" class="chat-messages"></div>
-      <div id="inputFormContainer"></div>
-    </div>
-  </div>
-<script>
-    let currentCheckoutId = null;
-
-    function updateProgress(steps) {
-      const progressSteps = document.getElementById('progressSteps');
-      if (steps && steps.length > 0) {
-        progressSteps.innerHTML = steps.map(s =>
-          `<div class="progress-step ${s.status}">
-            <div class="step-icon">${s.status === 'done' ? '✓' : ''}</div>
-            <div class="step-content">
-              <div class="step-title">${s.step}</div>
-              ${s.detail ? `<div class="step-detail">${s.detail}</div>` : ''}
+      <!-- Fixed Input Area at Bottom -->
+      <div class="fixed-input" id="fixedInput">
+        <div class="input-container">
+          <textarea
+            id="messageInput"
+            placeholder="Ask me about Lennox air conditioners..."
+            rows="1"
+          ></textarea>
+          <div class="input-bottom">
+            <div class="input-right-actions">
+              <button class="send-btn" id="sendBtn" disabled>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+              </button>
             </div>
-          </div>`
-        ).join('');
-      }
-    }
-
-    function showOrder(order) {
-      const orderConfirmation = document.getElementById('orderConfirmation');
-      orderConfirmation.innerHTML = `
-        <div class="order-confirmation">
-          <div class="order-header">
-            <div class="order-header-icon">✓</div>
-            Order Confirmed
-          </div>
-          <div class="order-row">
-            <span class="order-label">Order ID</span>
-            <span class="order-value">${order.id}</span>
-          </div>
-          <div class="order-row">
-            <span class="order-label">Items</span>
-            <span class="order-value">${order.items.join(', ')}</span>
-          </div>
-          <div class="order-row">
-            <span class="order-label">Total</span>
-            <span class="order-value">${order.total}</span>
           </div>
         </div>
-      `;
-    }
+      </div>
+    </main>
+  </div>
 
-    function addMessage(type, content) {
-      const chatMessages = document.getElementById('chatMessages');
-      const label = type === 'user' ? 'You' : type === 'assistant' ? 'Assistant' : 'Error';
-      chatMessages.innerHTML += `
-        <div class="chat-message ${type}">
-          <div class="message-label">${label}</div>
-          ${content}
-        </div>
-      `;
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    function clearForm() {
-      document.getElementById('inputFormContainer').innerHTML = '';
-    }
-
-    // Demo user data (simulating cached/saved user info)
-    const demoUser = {
-      email: 'demo.user@example.com',
-      address: {
-        street: '123 Demo Street',
-        city: 'San Francisco',
-        state: 'CA',
-        postal: '94102',
-        country: 'US'
-      },
-      card: {
-        number: '4242424242424242',
-        expiry_month: '12',
-        expiry_year: '2027',
-        cvc: '123'
-      }
-    };
-
-    function showBuyerInfoForm(checkoutId) {
-      currentCheckoutId = checkoutId;
-      const container = document.getElementById('inputFormContainer');
-      container.innerHTML = `
-        <div class="input-form">
-          <div class="form-title">📋 Your Contact Information</div>
-          <div class="form-row">
-            <label>Full Name</label>
-            <input type="text" id="buyerName" placeholder="Enter your full name" />
-          </div>
-          <div class="form-row">
-            <label>Email Address</label>
-            <input type="email" id="buyerEmail" value="${demoUser.email}" readonly style="background: #f0f0f0; color: #666;" />
-          </div>
-          <div class="form-row">
-            <label>Phone Number (Format: +1-XXX-XXX-XXXX)</label>
-            <input type="tel" id="buyerPhone" placeholder="+1-555-123-4567" />
-          </div>
-          <div class="form-actions">
-            <button onclick="submitBuyerInfo()">Continue</button>
-          </div>
-        </div>
-      `;
-    }
-
-    function showShippingAddressForm(checkoutId) {
-      currentCheckoutId = checkoutId;
-      const container = document.getElementById('inputFormContainer');
-      // Show brief message and auto-submit
-      container.innerHTML = `
-        <div class="input-form">
-          <div class="form-title">📦 Using saved shipping address...</div>
-          <div style="padding: 12px; color: #666; font-size: 14px;">
-            ${demoUser.address.street}, ${demoUser.address.city}, ${demoUser.address.state} ${demoUser.address.postal}
-          </div>
-        </div>
-      `;
-      // Auto-submit after brief delay
-      setTimeout(() => submitShippingAddressAuto(), 800);
-    }
-
-    async function submitShippingAddressAuto() {
-      const buyerName = sessionStorage.getItem('buyerName') || '';
-      const shippingAddress = {
-        full_name: buyerName,
-        street_address: demoUser.address.street,
-        address_locality: demoUser.address.city,
-        address_region: demoUser.address.state,
-        postal_code: demoUser.address.postal,
-        address_country: demoUser.address.country
-      };
-
-      try {
-        const res = await fetch('/agent/shipping-address', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ checkoutId: currentCheckoutId, shippingAddress })
-        });
-        const data = await res.json();
-        handleResponse(data);
-      } catch (err) {
-        addMessage('error', err.message);
-      }
-    }
-
-    function showShippingOptionsForm(checkoutId, options) {
-      currentCheckoutId = checkoutId;
-      const container = document.getElementById('inputFormContainer');
-
-      const optionsHtml = options.map(opt => `
-        <div class="shipping-option" onclick="selectShippingOption('${opt.id}')" style="padding: 12px; border: 1px solid rgba(0,0,0,0.1); border-radius: 10px; margin-bottom: 8px; cursor: pointer; background: rgba(255,255,255,0.5);">
-          <div style="font-weight: 600;">${opt.label || opt.id}</div>
-          <div style="font-size: 12px; color: #6b7280;">${opt.description || ''} - ${opt.price ? '$' + (opt.price.amount / 100).toFixed(2) : 'Free'}</div>
-        </div>
-      `).join('');
-
-      container.innerHTML = `
-        <div class="input-form">
-          <div class="form-title">🚚 Select Shipping Option</div>
-          ${optionsHtml}
-        </div>
-      `;
-    }
-
-    function showPaymentForm(checkoutId) {
-      currentCheckoutId = checkoutId;
-      const container = document.getElementById('inputFormContainer');
-      // Show brief message and auto-submit
-      container.innerHTML = `
-        <div class="input-form">
-          <div class="form-title">💳 Using saved payment method...</div>
-          <div style="padding: 12px; color: #666; font-size: 14px;">
-            Card ending in ****${demoUser.card.number.slice(-4)}
-          </div>
-        </div>
-      `;
-      // Auto-submit after brief delay
-      setTimeout(() => submitPaymentAuto(), 800);
-    }
-
-    async function submitPaymentAuto() {
-      const buyerName = sessionStorage.getItem('buyerName') || '';
-      const paymentCard = {
-        name: buyerName,
-        number: demoUser.card.number,
-        expiry_month: parseInt(demoUser.card.expiry_month),
-        expiry_year: parseInt(demoUser.card.expiry_year),
-        cvc: demoUser.card.cvc,
-        billing_address: {
-          full_name: buyerName,
-          street_address: demoUser.address.street,
-          address_locality: demoUser.address.city,
-          address_region: demoUser.address.state,
-          postal_code: demoUser.address.postal,
-          address_country: demoUser.address.country
-        }
-      };
-
-      try {
-        const res = await fetch('/agent/payment', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ checkoutId: currentCheckoutId, paymentCard })
-        });
-        const data = await res.json();
-        handleResponse(data);
-      } catch (err) {
-        addMessage('error', err.message);
-      }
-    }
-
-    function handleResponse(data) {
-      updateProgress(data.steps);
-
-      if (data.order) {
-        showOrder(data.order);
-        clearForm();
-      }
-
-      if (data.message) {
-        addMessage('assistant', data.message);
-      }
-
-      if (data.needsInput) {
-        switch (data.needsInput.type) {
-          case 'buyer_info':
-            showBuyerInfoForm(data.needsInput.checkoutId);
-            break;
-          case 'shipping_address':
-            showShippingAddressForm(data.needsInput.checkoutId);
-            break;
-          case 'shipping_option':
-            showShippingOptionsForm(data.needsInput.checkoutId, data.needsInput.options || []);
-            break;
-          case 'payment':
-            showPaymentForm(data.needsInput.checkoutId);
-            break;
-        }
-      }
-    }
-
-    async function send() {
-      const queryInput = document.getElementById('query');
-      const query = queryInput.value.trim();
-      if (!query) return;
-
-      const btn = document.getElementById('sendBtn');
-      const progressCard = document.getElementById('progressCard');
-      const progressSteps = document.getElementById('progressSteps');
-      const orderConfirmation = document.getElementById('orderConfirmation');
-      const chatMessages = document.getElementById('chatMessages');
-
-      chatMessages.innerHTML = '';
-      addMessage('user', query);
-
-      progressCard.classList.add('visible');
-      progressSteps.innerHTML = `
-        <div class="progress-step pending">
-          <div class="step-icon"></div>
-          <div class="step-content">
-            <div class="step-title">Processing your request</div>
-          </div>
-        </div>
-      `;
-      orderConfirmation.innerHTML = '';
-      clearForm();
-
-      btn.disabled = true;
-      btn.textContent = 'Processing...';
-      queryInput.value = '';
-
-      try {
-        const res = await fetch('/agent', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query })
-        });
-
-        const data = await res.json();
-        handleResponse(data);
-
-      } catch (err) {
-        progressCard.classList.remove('visible');
-        addMessage('error', err.message);
-      }
-
-      btn.disabled = false;
-      btn.textContent = 'Send';
-    }
-
-    async function submitBuyerInfo() {
-      const buyerName = document.getElementById('buyerName').value;
-      const buyerPhone = document.getElementById('buyerPhone').value;
-
-      const buyerInfo = {
-        full_name: buyerName,
-        email: document.getElementById('buyerEmail').value,
-        phone_number: buyerPhone
-      };
-
-      if (!buyerInfo.full_name || !buyerInfo.phone_number) {
-        alert('Please enter your full name and phone number');
-        return;
-      }
-
-      // Save buyer name for subsequent forms
-      sessionStorage.setItem('buyerName', buyerName);
-
-      try {
-        const res = await fetch('/agent/buyer-info', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ checkoutId: currentCheckoutId, buyerInfo })
-        });
-        const data = await res.json();
-        handleResponse(data);
-      } catch (err) {
-        addMessage('error', err.message);
-      }
-    }
-
-    async function submitShippingAddress() {
-      const shippingAddress = {
-        full_name: document.getElementById('shipName').value,
-        street_address: document.getElementById('shipStreet').value,
-        address_locality: document.getElementById('shipCity').value,
-        address_region: document.getElementById('shipState').value,
-        postal_code: document.getElementById('shipPostal').value,
-        address_country: document.getElementById('shipCountry').value
-      };
-
-      if (!shippingAddress.street_address || !shippingAddress.address_locality || !shippingAddress.postal_code) {
-        alert('Please fill in all required address fields');
-        return;
-      }
-
-      try {
-        const res = await fetch('/agent/shipping-address', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ checkoutId: currentCheckoutId, shippingAddress })
-        });
-        const data = await res.json();
-        handleResponse(data);
-      } catch (err) {
-        addMessage('error', err.message);
-      }
-    }
-
-    async function selectShippingOption(optionId) {
-      try {
-        const res = await fetch('/agent/shipping-option', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ checkoutId: currentCheckoutId, optionId })
-        });
-        const data = await res.json();
-        handleResponse(data);
-      } catch (err) {
-        addMessage('error', err.message);
-      }
-    }
-
-    async function submitPayment() {
-      const paymentCard = {
-        name: document.getElementById('cardName').value,
-        number: document.getElementById('cardNumber').value.replace(/\s/g, ''),
-        expiry_month: parseInt(document.getElementById('cardMonth').value),
-        expiry_year: parseInt(document.getElementById('cardYear').value),
-        cvc: document.getElementById('cardCvc').value,
-        billing_address: {
-          full_name: document.getElementById('billName').value,
-          street_address: document.getElementById('billStreet').value,
-          address_locality: document.getElementById('billCity').value,
-          address_region: document.getElementById('billState').value,
-          postal_code: document.getElementById('billPostal').value,
-          address_country: document.getElementById('billCountry').value
-        }
-      };
-
-      if (!paymentCard.number || !paymentCard.cvc || !paymentCard.expiry_month) {
-        alert('Please fill in all payment fields');
-        return;
-      }
-
-      try {
-        const res = await fetch('/agent/payment', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ checkoutId: currentCheckoutId, paymentCard })
-        });
-        const data = await res.json();
-        handleResponse(data);
-      } catch (err) {
-        addMessage('error', err.message);
-      }
-    }
-  </script>
+  <script src="/app.js"></script>
 </body>
 </html>

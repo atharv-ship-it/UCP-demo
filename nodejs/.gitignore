@@ -1,5 +1,4 @@
 node_modules/
 dist/
-databases/*.db
 .env
 .DS_Store

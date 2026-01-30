@@ -20,7 +20,17 @@ export function initDbs(productsPath: string, transactionsPath: string) {
       id TEXT PRIMARY KEY,
       title TEXT,
       price INTEGER,
-      image_url TEXT
+      image_url TEXT,
+      series TEXT,
+      description TEXT,
+      seer REAL,
+      seer2 REAL,
+      noise INTEGER,
+      energy_star INTEGER,
+      rating REAL,
+      reviews INTEGER,
+      price_display TEXT,
+      price_dollars TEXT
     )
   `);
 
