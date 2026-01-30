@@ -352,9 +352,12 @@ app.use('/*', serveStatic({ root: './public' }));
 
 /* -------------------- SERVER -------------------- */
 
+// ✅ ROOT FIX: Use Railway's PORT environment variable for deployment
+const port = parseInt(process.env.PORT || '3000', 10);
+
 serve(
-  { fetch: app.fetch, port: 3000 },
+  { fetch: app.fetch, port, hostname: '0.0.0.0' },
   (info) => {
-    console.log(`UCP Backend running on http://localhost:${info.port}`);
+    console.log(`UCP Backend running on http://0.0.0.0:${info.port}`);
   },
 );
