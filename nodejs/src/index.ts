@@ -265,6 +265,7 @@ Respond ONLY with valid JSON in this exact format:
   "show_products": false,
 }
 
+Set show_products to true when you want to display the recommended products to the user.
 `;
 
   try {
