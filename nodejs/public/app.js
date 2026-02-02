@@ -71,136 +71,136 @@ async function sendMessage(text) {
 
   try {
     // ✅ ROOT FIX: If in checkout flow, parse user input and update via UCP API
-    if (currentCheckoutId) {
-      // Check if we're waiting for address
-      if (waitingForAddress) {
-        // Parse address from text (expected format: street, city, state, zip)
-        const addressParts = text.split(',').map(p => p.trim());
+    // if (currentCheckoutId) {
+    //   // Check if we're waiting for address
+    //   if (waitingForAddress) {
+    //     // Parse address from text (expected format: street, city, state, zip)
+    //     const addressParts = text.split(',').map(p => p.trim());
 
-        if (addressParts.length >= 3) {
-          const street = addressParts[0];
-          const city = addressParts[1];
-          const stateZip = addressParts[2].split(' ');
-          const state = stateZip[0];
-          const zip = stateZip[1] || '';
+    //     if (addressParts.length >= 3) {
+    //       const street = addressParts[0];
+    //       const city = addressParts[1];
+    //       const stateZip = addressParts[2].split(' ');
+    //       const state = stateZip[0];
+    //       const zip = stateZip[1] || '';
 
-          // ✅ ROOT FIX: Send complete checkout state with fulfillment updated (UCP spec)
-          // Extract line item IDs for the fulfillment group
-          const lineItemIds = currentCheckoutState.line_items.map(li => li.id);
+    //       // ✅ ROOT FIX: Send complete checkout state with fulfillment updated (UCP spec)
+    //       // Extract line item IDs for the fulfillment group
+    //       const lineItemIds = currentCheckoutState.line_items.map(li => li.id);
 
-          const updatePayload = {
-            id: currentCheckoutState.id,
-            currency: currentCheckoutState.currency,
-            line_items: currentCheckoutState.line_items,
-            payment: currentCheckoutState.payment,
-            buyer: currentCheckoutState.buyer, // Keep existing buyer
-            fulfillment: {
-              methods: [
-                {
-                  type: 'shipping',
-                  selected_destination_id: 'dest_1',
-                  destinations: [
-                    {
-                      id: 'dest_1',
-                      name: currentCheckoutState.buyer?.full_name || 'Delivery Address',
-                      address: {
-                        street_address: street,
-                        address_locality: city,
-                        address_region: state,
-                        postal_code: zip,
-                        address_country: 'US',
-                        full_name: currentCheckoutState.buyer?.full_name
-                      }
-                    }
-                  ],
-                  groups: [
-                    {
-                      line_item_ids: lineItemIds, // Map line items to this fulfillment group
-                      selected_option_id: 'std-ship' // Backend expects 'std-ship' for standard shipping
-                    }
-                  ]
-                }
-              ]
-            }
-          };
+    //       const updatePayload = {
+    //         id: currentCheckoutState.id,
+    //         currency: currentCheckoutState.currency,
+    //         line_items: currentCheckoutState.line_items,
+    //         payment: currentCheckoutState.payment,
+    //         buyer: currentCheckoutState.buyer, // Keep existing buyer
+    //         fulfillment: {
+    //           methods: [
+    //             {
+    //               type: 'shipping',
+    //               selected_destination_id: 'dest_1',
+    //               destinations: [
+    //                 {
+    //                   id: 'dest_1',
+    //                   name: currentCheckoutState.buyer?.full_name || 'Delivery Address',
+    //                   address: {
+    //                     street_address: street,
+    //                     address_locality: city,
+    //                     address_region: state,
+    //                     postal_code: zip,
+    //                     address_country: 'US',
+    //                     full_name: currentCheckoutState.buyer?.full_name
+    //                   }
+    //                 }
+    //               ],
+    //               groups: [
+    //                 {
+    //                   line_item_ids: lineItemIds, // Map line items to this fulfillment group
+    //                   selected_option_id: 'std-ship' // Backend expects 'std-ship' for standard shipping
+    //                 }
+    //               ]
+    //             }
+    //           ]
+    //         }
+    //       };
 
-          const response = await fetch(`/checkout-sessions/${currentCheckoutId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updatePayload)
-          });
+    //       const response = await fetch(`/checkout-sessions/${currentCheckoutId}`, {
+    //         method: 'PUT',
+    //         headers: { 'Content-Type': 'application/json' },
+    //         body: JSON.stringify(updatePayload)
+    //       });
 
-          if (!response.ok) {
-            throw new Error('Failed to update checkout with address');
-          }
+    //       if (!response.ok) {
+    //         throw new Error('Failed to update checkout with address');
+    //       }
 
-          const checkout = await response.json();
-          currentCheckoutState = checkout; // Update stored state
-          waitingForAddress = false; // Reset flag
-          removeTypingIndicator();
+    //       const checkout = await response.json();
+    //       currentCheckoutState = checkout; // Update stored state
+    //       waitingForAddress = false; // Reset flag
+    //       removeTypingIndicator();
 
-          addMessage('assistant', 'Perfect! Your delivery address has been saved. Please review your order and proceed to payment.');
-          renderCheckoutCard(checkout, currentCheckoutId);
-        } else {
-          removeTypingIndicator();
-          addMessage('assistant', 'Please provide your delivery address in this format: Street Address, City, State Zip Code (e.g., 123 Main St, San Francisco, CA 94105)');
-        }
-      } else {
-        // Parse buyer info from text
-        const emailMatch = text.match(/[^\s]+@[^\s]+\.[^\s]+/);
-        const phoneMatch = text.match(/\b\d{7,15}\b/);
+    //       addMessage('assistant', 'Perfect! Your delivery address has been saved. Please review your order and proceed to payment.');
+    //       renderCheckoutCard(checkout, currentCheckoutId);
+    //     } else {
+    //       removeTypingIndicator();
+    //       addMessage('assistant', 'Please provide your delivery address in this format: Street Address, City, State Zip Code (e.g., 123 Main St, San Francisco, CA 94105)');
+    //     }
+    //   } else {
+    //     // Parse buyer info from text
+    //     const emailMatch = text.match(/[^\s]+@[^\s]+\.[^\s]+/);
+    //     const phoneMatch = text.match(/\b\d{7,15}\b/);
 
-        if (emailMatch || phoneMatch) {
-          // Extract name
-          let name = '';
-          const nameMatch = text.match(/^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/);
-          if (nameMatch) {
-            name = nameMatch[1];
-          } else {
-            const parts = text.split(',');
-            if (parts.length > 0) {
-              name = parts[0].trim();
-            }
-          }
+    //     if (emailMatch || phoneMatch) {
+    //       // Extract name
+    //       let name = '';
+    //       const nameMatch = text.match(/^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/);
+    //       if (nameMatch) {
+    //         name = nameMatch[1];
+    //       } else {
+    //         const parts = text.split(',');
+    //         if (parts.length > 0) {
+    //           name = parts[0].trim();
+    //         }
+    //       }
 
-          // ✅ ROOT FIX: Send complete checkout state with buyer updated (UCP spec requirement)
-          const updatePayload = {
-            id: currentCheckoutState.id,
-            currency: currentCheckoutState.currency,
-            line_items: currentCheckoutState.line_items,
-            payment: currentCheckoutState.payment,
-            buyer: {
-              full_name: name,
-              email: emailMatch ? emailMatch[0] : undefined,
-              phone_number: phoneMatch ? phoneMatch[0] : undefined
-            }
-          };
+    //       // ✅ ROOT FIX: Send complete checkout state with buyer updated (UCP spec requirement)
+    //       const updatePayload = {
+    //         id: currentCheckoutState.id,
+    //         currency: currentCheckoutState.currency,
+    //         line_items: currentCheckoutState.line_items,
+    //         payment: currentCheckoutState.payment,
+    //         buyer: {
+    //           full_name: name,
+    //           email: emailMatch ? emailMatch[0] : undefined,
+    //           phone_number: phoneMatch ? phoneMatch[0] : undefined
+    //         }
+    //       };
 
-          const response = await fetch(`/checkout-sessions/${currentCheckoutId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updatePayload)
-          });
+    //       const response = await fetch(`/checkout-sessions/${currentCheckoutId}`, {
+    //         method: 'PUT',
+    //         headers: { 'Content-Type': 'application/json' },
+    //         body: JSON.stringify(updatePayload)
+    //       });
 
-          if (!response.ok) {
-            throw new Error('Failed to update checkout');
-          }
+    //       if (!response.ok) {
+    //         throw new Error('Failed to update checkout');
+    //       }
 
-          const checkout = await response.json();
-          currentCheckoutState = checkout; // Update stored state
-          removeTypingIndicator();
+    //       const checkout = await response.json();
+    //       currentCheckoutState = checkout; // Update stored state
+    //       removeTypingIndicator();
 
-          // After buyer info, ask for address
-          waitingForAddress = true;
-          addMessage('assistant', 'Thank you! Your contact information has been saved. Now, please provide your delivery address in this format: Street Address, City, State Zip Code (e.g., 123 Main St, San Francisco, CA 94105)');
-          renderCheckoutCard(checkout, currentCheckoutId);
-        } else {
-          // Not buyer info - just acknowledge
-          removeTypingIndicator();
-          addMessage('assistant', 'Please provide your contact information in this format: Name, email@example.com, phone number');
-        }
-      }
-    } else {
+    //       // After buyer info, ask for address
+    //       waitingForAddress = true;
+    //       addMessage('assistant', 'Thank you! Your contact information has been saved. Now, please provide your delivery address in this format: Street Address, City, State Zip Code (e.g., 123 Main St, San Francisco, CA 94105)');
+    //       renderCheckoutCard(checkout, currentCheckoutId);
+    //     } else {
+    //       // Not buyer info - just acknowledge
+    //       removeTypingIndicator();
+    //       addMessage('assistant', 'Please provide your contact information in this format: Name, email@example.com, phone number');
+    //     }
+    //   }
+    
       // Otherwise, use /chat for product conversation
       conversationHistory.push({ role: 'user', content: text });
 
@@ -234,7 +234,7 @@ async function sendMessage(text) {
       // ✅ ROOT FIX: /chat NEVER creates checkout - only shows products with Buy buttons
     }
 
-  } catch (error) {
+   catch (error) {
     console.error('Error:', error);
     removeTypingIndicator();
     addMessage('assistant', 'I apologize, but I encountered an error. Please try again.');
@@ -303,47 +303,91 @@ async function initiateCheckout(productId) {
   addTypingIndicator();
 
   try {
-    // ✅ ROOT FIX: Direct UCP API call with required fields
-    const response = await fetch('/checkout-sessions', {
+    // Create checkout
+    const createResponse = await fetch('/checkout-sessions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         currency: 'USD',
-        line_items: [
-          {
-            item: {
-              id: productId
-            },
-            quantity: 1
-          }
-        ],
-        payment: {
-          handlers: []
-        }
+        line_items: [{
+          item: { id: productId },
+          quantity: 1
+        }]
       })
     });
 
-    if (!response.ok) {
-      throw new Error('Checkout failed');
+    if (!createResponse.ok) {
+      throw new Error('Failed to create checkout');
     }
 
-    const checkout = await response.json();
-    removeTypingIndicator();
-
-    // ✅ ROOT FIX: Store complete checkout state for UCP updates
+    const checkout = await createResponse.json();
     currentCheckoutId = checkout.id;
     currentCheckoutState = checkout;
 
-    // Show message
-    addMessage('assistant', 'Great! I\'ve started your checkout. Please provide your contact information (name, email, and phone number).');
+    // ✅ IMMEDIATELY UPDATE WITH HARDCODED INFO
+    const lineItemIds = checkout.line_items.map(li => li.id);
+    
+    const updatePayload = {
+      id: checkout.id,
+      currency: checkout.currency,
+      line_items: checkout.line_items,
+      payment: checkout.payment,
+      buyer: {
+        full_name: 'Elias Beckett',
+        email: 'elias.beckett@example.com',
+        phone_number: '+1-650-555-0143'
+      },
+      fulfillment: {
+        methods: [
+          {
+            type: 'shipping',
+            selected_destination_id: 'dest_1',
+            destinations: [
+              {
+                id: 'dest_1',
+                name: 'Elias Beckett',
+                address: {
+                  street_address: '1600 Amphitheatre Pkwy',
+                  address_locality: 'Mountain View',
+                  address_region: 'CA',
+                  postal_code: '94043',
+                  address_country: 'US',
+                  full_name: 'Elias Beckett'
+                }
+              }
+            ],
+            groups: [
+              {
+                line_item_ids: lineItemIds,
+                selected_option_id: 'std-ship'
+              }
+            ]
+          }
+        ]
+      }
+    };
 
-    // Render checkout card
-    renderCheckoutCard(checkout, checkout.id);
+    const updateResponse = await fetch(`/checkout-sessions/${currentCheckoutId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatePayload)
+    });
+
+    if (!updateResponse.ok) {
+      throw new Error('Failed to update checkout');
+    }
+
+    const updatedCheckout = await updateResponse.json();
+    currentCheckoutState = updatedCheckout;
+    
+    removeTypingIndicator();
+    addMessage('assistant', 'Great choice! Here\'s your order ready for review.');
+    renderCheckoutCard(updatedCheckout, currentCheckoutId);
 
   } catch (error) {
     console.error('Checkout Error:', error);
     removeTypingIndicator();
-    addMessage('assistant', 'Sorry, there was an issue starting checkout. Please try again.');
+    addMessage('assistant', 'Sorry, there was an error creating your checkout. Please try again.');
   }
 }
 
@@ -382,7 +426,6 @@ function renderProductCards(products) {
         </div>
         <div class="product-price" style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px;">
           <span class="price-symbol" style="font-size: 18px; font-weight: 600; color: var(--text-primary);">${product.price}</span>
-          <span class="price-range" style="font-size: 14px; color: var(--text-secondary);">${product.priceDollars}</span>
         </div>
         <button class="buy-btn" style="width: 100%; padding: 10px; background: var(--accent-blue); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.15s ease;">Buy Now</button>
       </div>
@@ -423,12 +466,10 @@ function renderCheckoutCard(checkout, checkoutId) {
   checkoutDiv.style.cssText = 'margin: 20px 0; padding-left: 48px;';
 
   // ✅ ROOT FIX: Extract data following UCP structure (line_items[].item.*)
+  // ✅ ROOT FIX: Extract product data from UCP structure (prices not displayed - contact dealer)
   const lineItems = checkout.line_items || [];
   const firstItem = lineItems[0] || {};
   const firstItemData = firstItem.item || {}; // Product details are nested under 'item'
-  const subtotal = lineItems.reduce((sum, li) => sum + ((li.item?.price || 0) * li.quantity), 0);
-  const tax = checkout.amounts?.tax || 0;
-  const total = checkout.totals?.find(t => t.type === 'total')?.amount || subtotal + tax;
 
   // ✅ ROOT FIX: Get buyer info from UCP checkout.buyer field
   const buyer = checkout.buyer || {};
@@ -506,7 +547,7 @@ function renderCheckoutCard(checkout, checkoutId) {
           <div class="ucp-product-name">${firstItemData.title}</div>
           <div class="ucp-product-meta">Qty: ${firstItem.quantity || 1}</div>
         </div>
-        <div class="ucp-product-price">$${((firstItemData.price || 0) / 100).toFixed(2)}</div>
+        <div class="ucp-product-price">Contact dealer</div>
       </div>
 
       ${buyerSection}
@@ -514,8 +555,8 @@ function renderCheckoutCard(checkout, checkoutId) {
       ${fulfillmentSection}
 
       <div class="ucp-footer">
-        <div class="ucp-total-label">Pay Lennox</div>
-        <div class="ucp-total-amount">$${(total / 100).toFixed(2)}</div>
+        <div class="ucp-total-label">Lennox</div>
+        <div class="ucp-total-amount">Contact dealer for pricing</div>
       </div>
 
       ${paymentSection}
@@ -589,17 +630,10 @@ function renderOrderConfirmation(order) {
   const confirmDiv = document.createElement('div');
   confirmDiv.style.cssText = 'margin: 20px 0; padding-left: 48px;';
 
-  // ✅ ROOT FIX: Read UCP Order structure correctly
+  // ✅ ROOT FIX: Read UCP Order structure correctly (prices not displayed - contact dealer)
   const lineItem = order.line_items?.[0] || {};
   const itemData = lineItem.item || {}; // Product details nested under 'item'
   const quantity = lineItem.quantity?.total || lineItem.quantity || 1; // quantity is {total, fulfilled}
-
-  // Get totals from order.totals array (UCP structure)
-  const totals = order.totals || [];
-  const subtotal = totals.find(t => t.type === 'subtotal')?.amount || 0;
-  const shipping = totals.find(t => t.type === 'fulfillment')?.amount || 0;
-  const tax = totals.find(t => t.type === 'tax')?.amount || 0;
-  const total = totals.find(t => t.type === 'total')?.amount || 0;
 
   // Get delivery address from fulfillment expectations
   const firstExpectation = order.fulfillment?.expectations?.[0];
@@ -614,7 +648,7 @@ function renderOrderConfirmation(order) {
 
       <div class="ucp-confirmation-title">Order complete</div>
       <div class="ucp-confirmation-subtitle">Order ID: ${order.id}</div>
-      <div class="ucp-confirmation-message">Thank you. Your order has been confirmed.</div>
+      <div class="ucp-confirmation-message">Thank you. Your order has been confirmed. A Lennox dealer will contact you for pricing and installation details.</div>
 
       <div class="ucp-confirmation-summary">
         <div class="ucp-summary-title">Order summary</div>
@@ -626,26 +660,9 @@ function renderOrderConfirmation(order) {
           </div>
         </div>
 
-        <div class="ucp-summary-row">
-          <span>Subtotal</span>
-          <span>$${(subtotal / 100).toFixed(2)}</span>
-        </div>
-        <div class="ucp-summary-row">
-          <span>Shipping and other fees</span>
-          <span>$${(shipping / 100).toFixed(2)}</span>
-        </div>
-        <div class="ucp-summary-row">
-          <span>Tax</span>
-          <span>$${(tax / 100).toFixed(2)}</span>
-        </div>
         <div class="ucp-summary-row total">
-          <span>Total price</span>
-          <span>$${(total / 100).toFixed(2)}</span>
-        </div>
-
-        <div class="ucp-summary-row">
-          <span>Payment method</span>
-          <span>Visa ••4242 with Google Pay</span>
+          <span>Pricing</span>
+          <span>Contact dealer</span>
         </div>
       </div>
 
