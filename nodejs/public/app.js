@@ -312,7 +312,8 @@ async function initiateCheckout(productId) {
         line_items: [{
           item: { id: productId },
           quantity: 1
-        }]
+        }],
+        payment: {}
       })
     });
 
@@ -331,7 +332,7 @@ async function initiateCheckout(productId) {
       id: checkout.id,
       currency: checkout.currency,
       line_items: checkout.line_items,
-      payment: checkout.payment,
+      payment: checkout.payment || {},
       buyer: {
         full_name: 'Elias Beckett',
         email: 'elias.beckett@example.com',
