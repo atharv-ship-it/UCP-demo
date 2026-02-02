@@ -48,56 +48,207 @@ function seedDatabase() {
   const insertProduct = productsDb.prepare(`
     INSERT INTO products (
       id, title, price, image_url, series, description,
-      seer, seer2, noise, energy_star, rating, reviews,
-      price_display, price_dollars
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      seer, seer2, eer2, noise, energy_star, rating, reviews,
+      price_display, refrigerant_type, compressor_type, compressor_stages,
+      features, warranty_compressor_years, warranty_parts_years,
+      status, regional_availability, url
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
-  // ✅ ROOT FIX: Add ALL 10 products
-  insertProduct.run('sl28xcv', 'Lennox SL28XCV', 1200000, '/assets/sl28xcv.png',
-    'Dave Lennox Signature Collection', 'Precise, highest-efficiency, fully digital, variable-capacity air conditioner', 28, null, 59, 1, 4.5, 550, '$$$$', '$12,000');
+  // ✅ ROOT FIX: Complete Lennox AC product catalog (18 models) from official JSON data (2026-02-02)
+  // Format: id, title, price (internal), image_url, series, description, seer, seer2, eer2, noise, energy_star, rating, reviews, price_display, refrigerant_type, compressor_type, compressor_stages, features (JSON), warranty_compressor_years, warranty_parts_years, status, regional_availability, url
 
-  insertProduct.run('sl25kcv', 'Lennox SL25KCV', 1070000, '/assets/sl25kcv.png',
-    'Dave Lennox Signature Collection', 'The most precise and efficient air conditioner available', null, 26, 58, 1, 4.2, 107, '$$$$', '$10,700');
+  // === DAVE LENNOX SIGNATURE COLLECTION (Premium: $$$$) ===
+  insertProduct.run('sl25kcv', 'Lennox SL25KCV', 0, '/assets/sl25kcv.png',
+    'Dave Lennox Signature Collection',
+    'The most precise and efficient air conditioner available',
+    null, 26.0, 12.6, 58, 1, 4.2, 107, '$$$$',
+    'R-454B', 'Variable-Capacity', 'Variable',
+    JSON.stringify(['Digitally intelligent with S40 Smart Thermostat compatibility', 'Innovative cabinet design with composite unit base', 'Sound-dampening system with precision-balanced direct-drive fan', '2025 EPA compliant refrigerant (R-454B)', 'Sensors for automatic diagnostics and adjustments']),
+    10, 10, 'Active', null,
+    'https://www.lennox.com/residential/products/heating-cooling/air-conditioners/sl25kcv');
 
-  insertProduct.run('xc21', 'Lennox XC21', 770000, '/assets/xc21.png',
-    'Dave Lennox Signature Collection', 'The most efficient two-stage central air conditioner you can buy', 21, 19.2, 69, 1, 4.5, 1149, '$$$', '$7,700');
+  insertProduct.run('sl28xcv', 'Lennox SL28XCV', 0, '/assets/sl28xcv.png',
+    'Dave Lennox Signature Collection',
+    'Precise, highest-efficiency, fully digital, variable-capacity air conditioner',
+    28.0, null, null, 59, 1, 4.5, 550, '$$$$',
+    'R-410A', 'Variable-Capacity Scroll', 'Variable',
+    JSON.stringify(['Part of Ultimate Comfort System', 'Precise Comfort technology adjusts in minute increments', '28 SEER - highest efficiency rating', 'Most Efficient ENERGY STAR certified 2022', 'Variable-capacity compressor for low-speed quiet operation', 'Quantum Coil with proprietary aluminum alloy', 'iComfort S30 thermostat integration', 'PermaGuard Cabinet with SmartHinge Louver Design']),
+    10, 10, 'Active', null,
+    'https://www.lennox.com/residential/products/heating-cooling/air-conditioners/sl28xcv');
 
-  insertProduct.run('el23xcv', 'Lennox EL23XCV', 630000, '/assets/el23xcv.png',
-    'Elite Series', 'High-efficiency, digitally-enabled, variable-capacity air conditioner', 22, 22.4, 59, 1, 4.4, 347, '$$$', '$6,300');
+  insertProduct.run('xc21', 'Lennox XC21', 0, '/assets/xc21.png',
+    'Dave Lennox Signature Collection',
+    'The most efficient two-stage central air conditioner',
+    21.0, 19.2, null, 69, 1, 4.5, 1149, '$$$',
+    'R-410A', 'Two-Stage Scroll', 'Two-Stage',
+    JSON.stringify(['Multi-stage operation for fine-tuned cooling', 'Humidity control with Humiditrol system compatibility', 'Most Efficient ENERGY STAR certified 2022', 'Quietest multi-stage air conditioner available', 'iComfort-enabled technology', 'PermaGuard Cabinet with SmartHinge Louver Design']),
+    10, 10, 'Active - Regional (Northern region only)', 'Northern region only',
+    'https://www.lennox.com/residential/products/heating-cooling/air-conditioners/xc21');
 
-  insertProduct.run('el22kcv', 'Lennox EL22KCV', 648900, '/assets/el22kcv.png',
-    'Elite Series', 'High-efficiency, digital-ready, variable-capacity air conditioner compatible with 2025 Compliant Refrigerant', null, 22.5, 60, 1, 4.6, 224, '$$$', '$6,489');
+  // === ELITE SERIES (Mid-High: $$$ to $$) ===
+  insertProduct.run('el22kcv', 'Lennox EL22KCV', 0, '/assets/el22kcv.png',
+    'Elite Series',
+    'High-efficiency, digital-ready, variable-capacity air conditioner compatible with 2025 Compliant Refrigerant',
+    null, 22.5, null, 60, 1, 4.6, 224, '$$$',
+    'R-454B', 'Variable-Capacity', 'Variable',
+    JSON.stringify(['Variable-capacity operation like a dimmer switch', '2025 EPA compliant refrigerant (R-454B)', 'Digital-ready for smart thermostat integration', 'Precision-balanced direct-drive fan', 'Sound level as quiet as 60 dB']),
+    10, 5, 'Active', null,
+    'https://www.lennox.com/residential/products/heating-cooling/air-conditioners/el22kcv');
 
-  insertProduct.run('el17xc1', 'Lennox EL17XC1', 510000, '/assets/el17xc1.png',
-    'Elite Series', 'Mid-efficiency, single-stage air conditioner', 18.6, 17.4, null, 1, 4.5, 1395, '$$', '$5,100');
+  insertProduct.run('el23xcv', 'Lennox EL23XCV', 0, '/assets/el23xcv.png',
+    'Elite Series',
+    'High-efficiency, digitally-enabled, variable-capacity air conditioner',
+    22.0, 22.4, null, 59, 1, 4.4, 347, '$$$',
+    'R-410A', 'Variable-Capacity Scroll', 'Variable',
+    JSON.stringify(['Variable-capacity operation adjusts like a dimmer switch', '22.00 SEER2 efficiency rating', 'ENERGY STAR certified', 'Sound level as quiet as 59 dB (dishwasher level)', 'Digital bridge to perfect air with S30/S40 Smart Thermostat', 'Quantum Coil with proprietary aluminum alloy', 'PermaGuard Cabinet with SmartHinge Louver Design', 'Digitally-enabled diagnostics']),
+    10, 5, 'Active', null,
+    'https://www.lennox.com/residential/products/heating-cooling/air-conditioners/el23xcv');
 
-  insertProduct.run('el16xc1', 'Lennox EL16XC1', 550000, '/assets/el16xc1.png',
-    'Elite Series', 'Standard-efficiency, single-stage air conditioner', 17, null, 71, 1, 4.5, 11587, '$$', '$5,500');
+  insertProduct.run('xc20', 'Lennox XC20', 0, '/assets/xc20.png',
+    'Elite Series',
+    'High-efficiency air conditioner with true variable capacity',
+    22.0, 20.2, null, 65, 1, 4.4, 500, '$$$',
+    'R-410A', 'Variable-Capacity Scroll', 'Variable',
+    JSON.stringify(['Variable-capacity operation adjusts like a dimmer switch', 'Precise humidity control', 'Most Efficient ENERGY STAR certified 2022', 'iComfort-enabled technology', 'PermaGuard Cabinet with SmartHinge Louver Design', 'Advanced sound reduction features']),
+    10, 5, 'Active', null,
+    'https://www.lennox.com/residential/products/heating-cooling/air-conditioners/xc20');
 
-  insertProduct.run('el16kc1', 'Lennox EL16KC1', 400000, '/assets/el16kc1.png',
-    'Elite Series', 'Mid-efficiency, single-stage air conditioner compatible with 2025 Compliant Refrigerant', null, 17, 72, 1, 4.5, 612, '$$', '$4,000');
+  insertProduct.run('el18kcv', 'Lennox EL18KCV', 0, '/assets/el18kcv.png',
+    'Elite Series',
+    'Mid-efficiency, digital-ready, variable-capacity air conditioner compatible with 2025 Compliant Refrigerant',
+    null, 19.5, null, 67, 1, 4.3, 300, '$$$',
+    'R-454B', 'Variable-Capacity', 'Variable',
+    JSON.stringify(['Variable-capacity operation adjusts like a dimmer switch', '2025 EPA compliant refrigerant (R-454B)', 'Digital-ready for S40 Smart Thermostat', 'Sound level as quiet as 67 dB (clothes washer level)', 'Galvanized steel cabinet with hinged louver panel design', 'Precision humidity control']),
+    10, 5, 'Active', null,
+    'https://www.lennox.com/residential/products/heating-cooling/air-conditioners/el18kcv');
 
-  insertProduct.run('ml17xc1', 'Lennox ML17XC1', 280000, '/assets/ml17xc1.png',
-    'Merit Series', 'Standard-efficiency, single-stage air conditioner', 17, 16.2, null, 0, 4.4, 7164, '$', '$2,800');
+  insertProduct.run('el18xcv', 'Lennox EL18XCV', 0, '/assets/el18xcv.png',
+    'Elite Series',
+    'Truly variable. Truly digital.',
+    18.0, 18.8, null, 72, 1, 4.3, 400, '$$',
+    'R-410A', 'Variable-Capacity', 'Variable',
+    JSON.stringify(['Variable-capacity operation', 'iComfort-enabled technology', 'PermaGuard Cabinet with SmartHinge Louver Design']),
+    10, 5, 'Active', null,
+    'https://www.lennox.com/residential/products/heating-cooling/air-conditioners/el18xcv');
 
-  insertProduct.run('ml17kc2', 'Lennox ML17KC2', 350000, '/assets/ml17kc2.png',
-    'Merit Series', 'Mid-efficiency, two-stage air conditioner compatible with 2025 Compliant Refrigerant', null, 18, null, 1, 4.4, 373, '$', '$3,500');
+  insertProduct.run('el16kc1', 'Lennox EL16KC1', 0, '/assets/el16kc1.png',
+    'Elite Series',
+    'Mid-efficiency, single-stage air conditioner compatible with 2025 Compliant Refrigerant',
+    null, 17.0, null, 72, 1, 4.5, 612, '$$',
+    'R-454B', 'Scroll', 'Single-Stage',
+    JSON.stringify(['2025 EPA compliant refrigerant (R-454B)', 'Single-stage operation', 'Mid-efficiency performance']),
+    10, 5, 'Active', null,
+    'https://www.lennox.com/residential/products/heating-cooling/air-conditioners/el16kc1');
 
+  insertProduct.run('el15kc1', 'Lennox EL15KC1', 0, '/assets/el15kc1.png',
+    'Elite Series',
+    'Mid-efficiency, single-stage air conditioner compatible with 2025 Compliant Refrigerant',
+    null, 16.0, null, 72, 1, 4.4, 350, '$$',
+    'R-454B', 'Scroll', 'Single-Stage',
+    JSON.stringify(['2025 EPA compliant refrigerant (R-454B)', 'Single-stage operation', 'Mid-efficiency performance']),
+    10, 5, 'Active - Regional (Northern region only)', 'Northern region only',
+    'https://www.lennox.com/residential/products/heating-cooling/air-conditioners/el15kc1');
+
+  insertProduct.run('el16xc1', 'Lennox EL16XC1', 0, '/assets/el16xc1.png',
+    'Elite Series',
+    'Standard-efficiency, single-stage air conditioner',
+    17.0, null, null, 71, 1, 4.5, 11587, '$$',
+    'R-410A', 'Scroll', 'Single-Stage',
+    JSON.stringify(['Single-stage operation', 'Standard-efficiency performance']),
+    10, 5, 'Active', null,
+    'https://www.lennox.com/residential/products/heating-cooling/air-conditioners/el16xc1');
+
+  insertProduct.run('el17xc1', 'Lennox EL17XC1', 0, '/assets/el17xc1.png',
+    'Elite Series',
+    'Mid-efficiency, single-stage air conditioner',
+    18.6, 17.4, null, null, 1, 4.5, 1395, '$$',
+    'R-410A', 'Scroll', 'Single-Stage',
+    JSON.stringify(['Single-stage operation', 'Mid-efficiency performance']),
+    10, 5, 'Active', null,
+    'https://www.lennox.com/residential/products/heating-cooling/air-conditioners/el17xc1');
+
+  // === MERIT SERIES (Budget: $) ===
+  insertProduct.run('ml17xc1', 'Lennox ML17XC1', 0, '/assets/ml17xc1.png',
+    'Merit Series',
+    'Standard-efficiency, single-stage air conditioner',
+    17.0, 16.2, null, null, 0, 4.4, 7164, '$',
+    'R-410A', 'Scroll', 'Single-Stage',
+    JSON.stringify(['Single-stage operation', 'Standard-efficiency performance', 'Value-oriented Merit Series']),
+    10, 5, 'Active', null,
+    'https://www.lennox.com/residential/products/heating-cooling/air-conditioners/ml17xc1');
+
+  insertProduct.run('ml17kc2', 'Lennox ML17KC2', 0, '/assets/ml17kc2.png',
+    'Merit Series',
+    'Mid-efficiency, two-stage air conditioner compatible with 2025 Compliant Refrigerant',
+    null, 18.0, null, null, 1, 4.4, 375, '$',
+    'R-454B', 'Scroll', 'Two-Stage',
+    JSON.stringify(['2025 EPA compliant refrigerant (R-454B)', 'Two-stage operation', 'Mid-efficiency performance']),
+    10, 5, 'Active', null,
+    'https://www.lennox.com/residential/products/heating-cooling/air-conditioners/ml17kc2');
+
+  insertProduct.run('ml18xc2', 'Lennox ML18XC2', 0, '/assets/ml18xc2.png',
+    'Merit Series',
+    'Mid-efficiency, two-stage air conditioner',
+    18.0, 17.8, null, null, 1, 4.3, 450, '$',
+    'R-410A', 'Scroll', 'Two-Stage',
+    JSON.stringify(['Two-stage operation', 'Mid-efficiency performance']),
+    10, 5, 'Active', null,
+    'https://www.lennox.com/residential/products/heating-cooling/air-conditioners/ml18xc2');
+
+  insertProduct.run('ml14kc1', 'Lennox ML14KC1', 0, '/assets/ml14kc1.png',
+    'Merit Series',
+    'Standard-efficiency, single-stage air conditioner compatible with 2025 Compliant Refrigerant',
+    null, null, null, 73, 1, 4.2, 280, '$',
+    'R-454B', 'Scroll', 'Single-Stage',
+    JSON.stringify(['2025 EPA compliant refrigerant (R-454B)', 'Single-stage operation', 'Standard-efficiency performance']),
+    10, 5, 'Active', null,
+    'https://www.lennox.com/residential/products/heating-cooling/air-conditioners/ml14kc1');
+
+  insertProduct.run('ml13kc1', 'Lennox ML13KC1', 0, '/assets/ml13kc1.png',
+    'Merit Series',
+    'Standard-efficiency, single-stage air conditioner compatible with 2025 Compliant Refrigerant',
+    null, 13.4, null, 73, 1, 4.2, 200, '$',
+    'R-454B', 'Scroll', 'Single-Stage',
+    JSON.stringify(['2025 EPA compliant refrigerant (R-454B)', 'Single-stage operation', 'Standard-efficiency performance']),
+    10, 5, 'Active - Regional (Northern region only)', 'Northern region only',
+    'https://www.lennox.com/residential/products/heating-cooling/air-conditioners/ml13kc1');
+
+  insertProduct.run('ml14xc1', 'Lennox ML14XC1', 0, '/assets/ml14xc1.png',
+    'Merit Series',
+    'Efficient, durable air conditioner',
+    17.0, 13.4, null, 73, 1, 4.3, 320, '$',
+    'R-410A', 'Scroll', 'Single-Stage',
+    JSON.stringify(['Single-stage operation', 'Efficient and durable design']),
+    10, 5, 'Active - Regional (Northern region only)', 'Northern region only',
+    'https://www.lennox.com/residential/products/heating-cooling/air-conditioners/ml14xc1');
+
+  // === INVENTORY FOR ALL 18 MODELS ===
   const insertInventory = transactionsDb.prepare(
     'INSERT INTO inventory (product_id, quantity) VALUES (?, ?)',
   );
 
-  insertInventory.run('sl28xcv', 100);
-  insertInventory.run('sl25kcv', 120);
-  insertInventory.run('xc21', 200);
-  insertInventory.run('el23xcv', 180);
-  insertInventory.run('el22kcv', 150);
-  insertInventory.run('el17xc1', 300);
-  insertInventory.run('el16xc1', 400);
-  insertInventory.run('el16kc1', 250);
-  insertInventory.run('ml17xc1', 400);
-  insertInventory.run('ml17kc2', 350);
+  // Signature Collection
+  insertInventory.run('sl25kcv', 50);
+  insertInventory.run('sl28xcv', 50);
+  insertInventory.run('xc21', 80);
+  // Elite Series
+  insertInventory.run('el22kcv', 100);
+  insertInventory.run('el23xcv', 100);
+  insertInventory.run('xc20', 120);
+  insertInventory.run('el18kcv', 150);
+  insertInventory.run('el18xcv', 150);
+  insertInventory.run('el17xc1', 200);
+  insertInventory.run('el16kc1', 200);
+  insertInventory.run('el15kc1', 180);
+  insertInventory.run('el16xc1', 250);
+  // Merit Series
+  insertInventory.run('ml17xc1', 300);
+  insertInventory.run('ml17kc2', 300);
+  insertInventory.run('ml18xc2', 280);
+  insertInventory.run('ml14kc1', 350);
+  insertInventory.run('ml13kc1', 350);
+  insertInventory.run('ml14xc1', 320);
 
   console.log('Database seeded.');
 }
@@ -250,12 +401,22 @@ RULES:
 - Ask ONE question at a time when clarifying
 - Recommend 2-3 products max
 - Use product IDs exactly as provided
+- NEVER mention dollar prices or specific costs - only use Price Guide ($, $$, $$$, $$$$) to indicate relative pricing tier
+- When asked about specs, provide SEER/SEER2, noise level, refrigerant type, compressor info, warranty, and features - but NEVER dollar amounts
+- For pricing, always say "Contact your local Lennox dealer for pricing" or refer to the Price Guide tier
 
 AVAILABLE PRODUCTS:
-${allProducts.map(p => `- ${p.id}: ${p.title} (${p.series})
+${allProducts.map(p => {
+  const features = p.features ? JSON.parse(p.features).slice(0, 3).join(', ') : 'N/A';
+  return `- ${p.id}: ${p.title} (${p.series})
   SEER: ${p.seer || 'N/A'}, SEER2: ${p.seer2 || 'N/A'}, Noise: ${p.noise || 'N/A'}dB
-  Price: ${p.price} (${p.price_dollars}), Rating: ${p.rating}/5, Reviews: (${p.reviews} reviews),
-  Description: ${p.description}`).join("\n")}
+  Refrigerant: ${p.refrigerant_type || 'N/A'}, Compressor: ${p.compressor_stages || 'N/A'}
+  Price Guide: ${p.price_display}, Rating: ${p.rating}/5 (${p.reviews} reviews)
+  Warranty: ${p.warranty_compressor_years}yr compressor, ${p.warranty_parts_years}yr parts
+  Status: ${p.status || 'Active'}${p.regional_availability ? ` (${p.regional_availability})` : ''}
+  Key Features: ${features}
+  Description: ${p.description}`;
+}).join("\n")}
 
 Respond ONLY with valid JSON in this exact format:
 {
@@ -311,16 +472,15 @@ Set show_products to true when you want to display the recommended products to t
       };
     }
 
-    // Get recommended products
-    const products = parsed.show_products && parsed.recommended_products
+    // ✅ ROOT FIX: Show product cards whenever AI recommends products (intelligent behavior)
+    const products = parsed.recommended_products && Array.isArray(parsed.recommended_products) && parsed.recommended_products.length > 0
       ? allProducts.filter((p: any) => parsed.recommended_products.includes(p.id)).map((p: any) => ({
           id: p.id,
           title: p.title,
           series: p.series,
           name: p.title,
           image: p.image_url,
-          price: p.price_display,
-          priceDollars: p.price_dollars,
+          price: p.price_display, // Official price guide: $, $$, $$$, $$$$
           seer: p.seer,
           seer2: p.seer2,
           noise: p.noise,
