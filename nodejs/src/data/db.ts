@@ -44,6 +44,13 @@ export function initDbs(productsPath: string, transactionsPath: string) {
     )
   `);
 
+  // Migration: Add eer2 column if it doesn't exist (for existing databases)
+  const columns = productsDb.pragma('table_info(products)') as {name: string}[];
+  const hasEer2 = columns.some(col => col.name === 'eer2');
+  if (!hasEer2) {
+    productsDb.exec('ALTER TABLE products ADD COLUMN eer2 REAL');
+  }
+
   // Initialize Transactions DB schema
   transactionsDb.exec(`
     CREATE TABLE IF NOT EXISTS inventory (
