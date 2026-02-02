@@ -15,6 +15,7 @@ export function initDbs(productsPath: string, transactionsPath: string) {
   transactionsDb = new Database(transactionsPath);
 
   // Initialize Products DB schema
+  // Note: price is for UCP checkout (internal), price_display is the official price guide ($/$$/$$$/$$$) for display
   productsDb.exec(`
     CREATE TABLE IF NOT EXISTS products (
       id TEXT PRIMARY KEY,
@@ -25,12 +26,21 @@ export function initDbs(productsPath: string, transactionsPath: string) {
       description TEXT,
       seer REAL,
       seer2 REAL,
+      eer2 REAL,
       noise INTEGER,
       energy_star INTEGER,
       rating REAL,
       reviews INTEGER,
       price_display TEXT,
-      price_dollars TEXT
+      refrigerant_type TEXT,
+      compressor_type TEXT,
+      compressor_stages TEXT,
+      features TEXT,
+      warranty_compressor_years INTEGER,
+      warranty_parts_years INTEGER,
+      status TEXT,
+      regional_availability TEXT,
+      url TEXT
     )
   `);
 
