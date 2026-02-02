@@ -44,11 +44,27 @@ export function initDbs(productsPath: string, transactionsPath: string) {
     )
   `);
 
-  // Migration: Add eer2 column if it doesn't exist (for existing databases)
+  // Migration: Add missing columns for existing databases
   const columns = productsDb.pragma('table_info(products)') as {name: string}[];
-  const hasEer2 = columns.some(col => col.name === 'eer2');
-  if (!hasEer2) {
-    productsDb.exec('ALTER TABLE products ADD COLUMN eer2 REAL');
+  const existingColumns = new Set(columns.map(col => col.name));
+
+  const migrations: {name: string; type: string}[] = [
+    {name: 'eer2', type: 'REAL'},
+    {name: 'refrigerant_type', type: 'TEXT'},
+    {name: 'compressor_type', type: 'TEXT'},
+    {name: 'compressor_stages', type: 'TEXT'},
+    {name: 'features', type: 'TEXT'},
+    {name: 'warranty_compressor_years', type: 'INTEGER'},
+    {name: 'warranty_parts_years', type: 'INTEGER'},
+    {name: 'status', type: 'TEXT'},
+    {name: 'regional_availability', type: 'TEXT'},
+    {name: 'url', type: 'TEXT'},
+  ];
+
+  for (const {name, type} of migrations) {
+    if (!existingColumns.has(name)) {
+      productsDb.exec(`ALTER TABLE products ADD COLUMN ${name} ${type}`);
+    }
   }
 
   // Initialize Transactions DB schema
