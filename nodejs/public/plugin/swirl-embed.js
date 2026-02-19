@@ -5094,47 +5094,80 @@
       if (!updateRes.ok) throw new Error('Failed to update checkout')
       const updated = await updateRes.json()
 
-      // Inject checkout card into voice agent chat
-      const messagesContainer = document.querySelector('.swirl-ai-chat-messages')
-      if (!messagesContainer) return
       const item = updated.line_items?.[0]?.item || {}
-      const buyer = updated.buyer || {}
       const dest = updated.fulfillment?.methods?.[0]?.destinations?.[0]
 
-      const checkoutDiv = document.createElement('div')
-      checkoutDiv.className = 'swirl-ai-response-container'
-      checkoutDiv.innerHTML = `
-        <div style="background:#fff;border-radius:16px;border:1px solid #e0e0e0;padding:20px;max-width:420px;box-shadow:0 4px 16px rgba(0,0,0,0.08);">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-            <span style="font-size:18px;font-weight:600;color:#1f1f1f;">Lennox</span>
-            <span style="font-size:13px;color:#5f6368;">Review your order</span>
+      // Show checkout as a viewport overlay modal — always visible, no scrolling needed
+      const overlay = document.createElement('div')
+      overlay.id = 'lennox-checkout-overlay'
+      overlay.style.cssText = 'position:absolute;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);'
+      overlay.innerHTML = `
+        <div style="background:#fff;border-radius:18px;width:min(420px,92vw);max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.22);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+          <div style="padding:18px 20px 14px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:16px;font-weight:700;color:#1d1d1f;">Review your order</span>
+            <button id="lennox-overlay-close" style="background:none;border:none;font-size:20px;color:#86868b;cursor:pointer;line-height:1;padding:0 4px;">✕</button>
           </div>
-          <div style="display:flex;gap:12px;background:#f8f9fa;border-radius:12px;padding:14px;margin-bottom:14px;align-items:center;">
-            <img src="${item.image_url || `/assets/${item.id}.png`}" style="width:64px;height:64px;object-fit:contain;border-radius:8px;background:#fff;" />
-            <div style="flex:1;">
-              <div style="font-weight:500;color:#1f1f1f;font-size:14px;">${item.title || 'Lennox AC Unit'}</div>
-              <div style="font-size:12px;color:#5f6368;margin-top:2px;">Qty: 1</div>
+
+          <div style="padding:16px 20px;">
+            <div style="display:flex;gap:14px;background:#f5f5f7;border-radius:14px;padding:14px;margin-bottom:16px;align-items:center;">
+              <img src="${item.image_url || `/assets/${item.id}.png`}" style="width:72px;height:72px;object-fit:contain;border-radius:10px;background:#fff;flex-shrink:0;" onerror="this.style.opacity='0'" />
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:11px;color:#86868b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Lennox</div>
+                <div style="font-size:14px;font-weight:600;color:#1d1d1f;line-height:1.3;">${item.title || 'Lennox AC Unit'}</div>
+                <div style="font-size:12px;color:#86868b;margin-top:3px;">Qty: 1 &nbsp;·&nbsp; Return policy: Contact dealer</div>
+              </div>
+              <div style="font-size:13px;font-weight:600;color:#1d1d1f;flex-shrink:0;">Contact dealer</div>
             </div>
-            <div style="font-size:13px;font-weight:600;color:#1f1f1f;">Contact dealer</div>
+
+            <div style="border:1px solid #e8e8ed;border-radius:12px;overflow:hidden;margin-bottom:16px;">
+              <div style="padding:13px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #f0f0f0;">
+                <div style="width:36px;height:24px;background:#1d1d1f;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <span style="color:#fff;font-size:10px;font-weight:700;">VISA</span>
+                </div>
+                <div>
+                  <div style="font-size:13px;font-weight:500;color:#1d1d1f;">Visa ••3297</div>
+                </div>
+              </div>
+              <div style="padding:13px 16px;display:flex;align-items:flex-start;gap:12px;">
+                <div style="width:36px;height:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#86868b"/></svg>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-size:13px;font-weight:500;color:#1d1d1f;">Lennox Customer</div>
+                  <div style="font-size:12px;color:#86868b;margin-top:2px;">${dest?.address?.street_address || '1600 Amphitheatre Pkwy'}, ${dest?.address?.address_locality || 'Mountain View'}, ${dest?.address?.address_region || 'CA'}</div>
+                  <div style="font-size:12px;color:#86868b;margin-top:4px;display:flex;align-items:center;gap:4px;"><span>📦</span> USPS Standard · Arrives by ${new Date(Date.now() + 4*86400000).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid #f0f0f0;margin-bottom:16px;">
+              <span style="font-size:15px;font-weight:600;color:#1d1d1f;">Pay Lennox</span>
+              <span style="font-size:17px;font-weight:700;color:#1d1d1f;">Contact dealer</span>
+            </div>
+
+            <button id="lennox-pay-btn-${checkout.id}" style="width:100%;padding:14px;background:#1d1d1f;color:#fff;border:none;border-radius:28px;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:0.1px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+              Pay with Google Pay
+            </button>
+
+            <div style="font-size:11px;color:#86868b;line-height:1.5;margin-top:12px;text-align:center;">By continuing, you agree to Lennox terms and return policy.</div>
           </div>
-          ${buyer.full_name ? `<div style="display:flex;gap:10px;padding:12px;background:#f8f9fa;border-radius:10px;margin-bottom:10px;align-items:center;"><span style="font-size:20px;">👤</span><div><div style="font-size:13px;font-weight:500;">${buyer.full_name}</div><div style="font-size:12px;color:#5f6368;">${buyer.email || ''}</div></div></div>` : ''}
-          ${dest ? `<div style="display:flex;gap:10px;padding:12px;background:#f8f9fa;border-radius:10px;margin-bottom:10px;align-items:center;"><span style="font-size:20px;">📍</span><div style="font-size:12px;color:#5f6368;">${dest.address?.street_address}, ${dest.address?.address_locality}, ${dest.address?.address_region}</div></div>` : ''}
-          <div style="display:flex;justify-content:space-between;padding:12px 0;border-top:1px solid #e0e0e0;margin-top:4px;margin-bottom:14px;">
-            <span style="font-size:13px;color:#5f6368;">Pricing</span>
-            <span style="font-size:15px;font-weight:600;color:#1f1f1f;">Contact dealer</span>
-          </div>
-          <button id="lennox-pay-btn-${checkout.id}" style="width:100%;padding:13px;background:#4285f4;color:#fff;border:none;border-radius:24px;font-size:15px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
-            <span style="font-weight:700;font-size:17px;">G</span> Pay with Google Pay
-          </button>
-          <div style="font-size:11px;color:#80868b;line-height:1.4;margin-top:12px;">By continuing, you agree to Lennox terms and return policy.</div>
         </div>
       `
-      messagesContainer.appendChild(checkoutDiv)
-      // Always scroll checkout into view regardless of input mode — user must see it
-      checkoutDiv.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      const modal = document.getElementById('swirl-ai-voice-modal') || document.body
+      modal.appendChild(overlay)
+
+      // Close on backdrop click or X button
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.remove()
+      })
+      document.getElementById('lennox-overlay-close')?.addEventListener('click', () => overlay.remove())
 
       document.getElementById(`lennox-pay-btn-${checkout.id}`)?.addEventListener('click', async () => {
         try {
+          const payBtn = document.getElementById(`lennox-pay-btn-${checkout.id}`)
+          if (payBtn) { payBtn.disabled = true; payBtn.textContent = 'Processing...' }
+
           const completeRes = await fetch(`/checkout-sessions/${checkout.id}/complete`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -5152,288 +5185,86 @@
           const completed = await completeRes.json()
           const orderId = completed.order_id || checkout.id
           const orderItem = completed.line_items?.[0]?.item || item
-          const orderBuyer = completed.buyer || buyer
           const orderDest = completed.fulfillment?.methods?.[0]?.destinations?.[0] || dest
-          // Delivery estimate: 3-4 business days from order
           const deliveryDate = new Date()
           deliveryDate.setDate(deliveryDate.getDate() + 4)
           const deliveryStr = deliveryDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
           const addr = orderDest?.address || orderDest || {}
           const productName = orderItem?.title || 'Lennox AC Unit'
-
-          // Show confirmed order card — Lennox branded, Etsy-style layout
           const orderIdShort = orderId ? String(orderId).slice(0, 16).toUpperCase() : 'LNX-' + Date.now().toString(36).toUpperCase()
-          const buyerName = orderBuyer?.full_name || 'Lennox Customer'
-          const buyerEmail = orderBuyer?.email || 'customer@lennox.com'
           const addrLine = addr?.street_address ? `${addr.street_address}, ${addr.address_locality}, ${addr.address_region} ${addr.postal_code || ''}`.trim() : ''
 
-          checkoutDiv.innerHTML = `
-            <style>
-              @keyframes lx-confirm-in {
-                0%   { opacity:0; transform:translateY(20px) scale(0.97); }
-                100% { opacity:1; transform:translateY(0) scale(1); }
-              }
-              @keyframes lx-checkpop {
-                0%   { transform:scale(0) rotate(-20deg); opacity:0; }
-                65%  { transform:scale(1.18) rotate(4deg); opacity:1; }
-                100% { transform:scale(1) rotate(0); opacity:1; }
-              }
-              @keyframes lx-ring-pop {
-                0%   { transform:scale(1); opacity:0.7; }
-                100% { transform:scale(1.75); opacity:0; }
-              }
-              .lx-confirm-card {
-                background: #1c1c1e;
-                border-radius: 18px;
-                border: 1px solid rgba(255,255,255,0.10);
-                max-width: 400px;
-                overflow: hidden;
-                box-shadow: 0 12px 40px rgba(0,0,0,0.45);
-                animation: lx-confirm-in 0.45s cubic-bezier(0.25,1,0.5,1) both;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-              }
-              .lx-confirm-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 18px 20px 14px;
-                border-bottom: 1px solid rgba(255,255,255,0.07);
-              }
-              .lx-confirm-title {
-                font-size: 17px;
-                font-weight: 700;
-                color: #fff;
-                letter-spacing: -0.3px;
-              }
-              .lx-confirm-check {
-                position: relative;
-                width: 38px;
-                height: 38px;
-                flex-shrink: 0;
-              }
-              .lx-confirm-check-ring {
-                position: absolute;
-                inset: 0;
-                border-radius: 50%;
-                border: 2px solid rgba(52,199,89,0.55);
-                animation: lx-ring-pop 1.5s ease-out 0.2s infinite;
-              }
-              .lx-confirm-check-circle {
-                width: 38px;
-                height: 38px;
-                border-radius: 50%;
-                background: #34c759;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                box-shadow: 0 3px 14px rgba(52,199,89,0.4);
-                animation: lx-checkpop 0.55s cubic-bezier(0.34,1.56,0.64,1) 0.15s both;
-              }
-              .lx-confirm-body {
-                padding: 16px 20px;
-              }
-              .lx-confirm-thankyou {
-                font-size: 13.5px;
-                font-weight: 600;
-                color: #fff;
-                margin-bottom: 4px;
-              }
-              .lx-confirm-email-note {
-                font-size: 12px;
-                color: rgba(255,255,255,0.45);
-                margin-bottom: 16px;
-                line-height: 1.45;
-              }
-              .lx-confirm-meta-row {
-                display: flex;
-                justify-content: space-between;
-                align-items: baseline;
-                margin-bottom: 5px;
-              }
-              .lx-confirm-meta-label {
-                font-size: 12px;
-                color: rgba(255,255,255,0.4);
-              }
-              .lx-confirm-meta-value {
-                font-size: 12.5px;
-                font-weight: 500;
-                color: rgba(255,255,255,0.82);
-              }
-              .lx-confirm-meta-value.link {
-                color: #4da3ff;
-                text-decoration: underline;
-                cursor: pointer;
-              }
-              .lx-confirm-divider {
-                height: 1px;
-                background: rgba(255,255,255,0.07);
-                margin: 14px 0;
-              }
-              .lx-confirm-product-row {
-                display: flex;
-                gap: 14px;
-                align-items: center;
-                background: rgba(255,255,255,0.05);
-                border-radius: 12px;
-                padding: 12px;
-                margin-bottom: 14px;
-                border: 1px solid rgba(255,255,255,0.07);
-              }
-              .lx-confirm-product-img {
-                width: 66px;
-                height: 66px;
-                object-fit: contain;
-                border-radius: 8px;
-                background: rgba(255,255,255,0.06);
-                flex-shrink: 0;
-              }
-              .lx-confirm-product-brand {
-                font-size: 10px;
-                color: rgba(255,255,255,0.35);
-                text-transform: uppercase;
-                letter-spacing: 0.7px;
-                margin-bottom: 4px;
-              }
-              .lx-confirm-product-name {
-                font-size: 13.5px;
-                font-weight: 600;
-                color: rgba(255,255,255,0.9);
-                line-height: 1.3;
-                margin-bottom: 4px;
-              }
-              .lx-confirm-product-qty {
-                font-size: 11.5px;
-                color: rgba(255,255,255,0.38);
-              }
-              .lx-confirm-product-price {
-                font-size: 13px;
-                font-weight: 600;
-                color: rgba(255,255,255,0.7);
-                margin-left: auto;
-                flex-shrink: 0;
-                align-self: flex-start;
-                padding-top: 2px;
-              }
-              .lx-confirm-totals {
-                background: rgba(255,255,255,0.04);
-                border-radius: 10px;
-                padding: 12px 14px;
-                margin-bottom: 14px;
-              }
-              .lx-confirm-total-row {
-                display: flex;
-                justify-content: space-between;
-                font-size: 12px;
-                color: rgba(255,255,255,0.45);
-                margin-bottom: 6px;
-              }
-              .lx-confirm-total-row:last-child { margin-bottom: 0; }
-              .lx-confirm-total-row.grand {
-                font-size: 14px;
-                font-weight: 700;
-                color: #fff;
-                padding-top: 8px;
-                margin-top: 8px;
-                border-top: 1px solid rgba(255,255,255,0.09);
-              }
-              .lx-confirm-support {
-                display: flex;
-                gap: 10px;
-                align-items: flex-start;
-                background: rgba(255,255,255,0.04);
-                border-radius: 10px;
-                padding: 12px 14px;
-                font-size: 11.5px;
-                color: rgba(255,255,255,0.35);
-                line-height: 1.45;
-              }
-              .lx-confirm-support-icon {
-                font-size: 15px;
-                flex-shrink: 0;
-                margin-top: 1px;
-              }
-              .lx-confirm-support a {
-                color: #4da3ff;
-              }
-            </style>
-            <div class="lx-confirm-card">
-              <div class="lx-confirm-header">
-                <span class="lx-confirm-title">Order confirmed</span>
-                <div class="lx-confirm-check">
-                  <div class="lx-confirm-check-ring"></div>
-                  <div class="lx-confirm-check-circle">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  </div>
-                </div>
-              </div>
-
-              <div class="lx-confirm-body">
-                <div class="lx-confirm-thankyou">Thank you. Your order has been confirmed.</div>
-                <div class="lx-confirm-email-note">Lennox will send a confirmation to your email. It may take a few minutes to arrive.</div>
-
-                <div class="lx-confirm-meta-row">
-                  <span class="lx-confirm-meta-label">Order number</span>
-                  <span class="lx-confirm-meta-value link">${orderIdShort}</span>
-                </div>
-                <div class="lx-confirm-meta-row">
-                  <span class="lx-confirm-meta-label">Delivery</span>
-                  <span class="lx-confirm-meta-value">Arrives by ${deliveryStr}</span>
-                </div>
-                ${addrLine ? `
-                <div class="lx-confirm-meta-row" style="margin-top:2px;">
-                  <span class="lx-confirm-meta-label">Shipping address</span>
-                  <span class="lx-confirm-meta-value" style="text-align:right;max-width:55%;">${buyerName}<br><span style="font-weight:400;color:rgba(255,255,255,0.45);font-size:11.5px;">${addrLine}</span></span>
-                </div>` : ''}
-
-                <div class="lx-confirm-divider"></div>
-
-                <div class="lx-confirm-product-row">
-                  <img class="lx-confirm-product-img" src="${orderItem?.image_url || `/assets/${orderItem?.id}.png`}" onerror="this.style.opacity='0'" alt="${productName}" />
-                  <div style="flex:1;min-width:0;">
-                    <div class="lx-confirm-product-brand">Lennox</div>
-                    <div class="lx-confirm-product-name">${productName}</div>
-                    <div class="lx-confirm-product-qty">Qty: 1</div>
-                  </div>
-              
-                </div>
-
-                <div class="lx-confirm-totals">
-                  <div class="lx-confirm-total-row">
-                    <span>Payment method</span>
-                    <span>Visa XXXX 3297</span>
-                  </div>
-                  <div class="lx-confirm-total-row">
-                    <span>Subtotal</span>
-                    <span>Contact dealer</span>
-                  </div>
-                  <div class="lx-confirm-total-row">
-                    <span>Installation & shipping</span>
-                    <span>Contact dealer</span>
-                  </div>
-                  <div class="lx-confirm-total-row grand">
-                    <span>Total price</span>
-                    <span>Contact dealer</span>
-                  </div>
-                </div>
-
-                <div class="lx-confirm-support">
-                  <span class="lx-confirm-support-icon">🔧</span>
-                  <span><a href="#">Contact Lennox Support</a> if you need help with your order. We can assist with installation, delivery, warranty, and returns.</span>
-                </div>
-              </div>
-            </div>
-          `
-          scrollToBottom()
-
-          // Order done — lock out all further product card rendering permanently
+          // Lock out product cards now — order is done
           orderCompleted = true
           lastShownLennoxCards = []
           lastMentionedCard = null
 
-          // After 1s: agent celebrates — speaks in its own voice, no fake user message
+          // Step 1: close the checkout overlay, let AI congratulate first
+          overlay.remove()
+
+          // Step 2: AI celebrates immediately
+          triggerAISpeak(`The customer just completed their purchase of the ${productName} (order ref ${orderIdShort}, arriving by ${deliveryStr}). The order confirmation card is already visible — do NOT read out the details. Speak as their trusted advisor: celebrate this moment genuinely, tell them why they made a great choice, and leave them feeling great about it. 2-3 warm, natural sentences.`)
+
+          // Step 3: show order confirmation card in the overlay after a short delay (so AI speaks first)
           setTimeout(() => {
-            triggerAISpeak(`The customer just completed their purchase of the ${productName} (order ref ${orderIdShort}, arriving by ${deliveryStr}). The order confirmation card is already visible — do NOT read out the details. Speak as their trusted advisor: celebrate this moment genuinely, tell them why they made a great choice, and leave them feeling great about it. 2-3 warm, natural sentences.`)
-          }, 1000)
+            const confirmOverlay = document.createElement('div')
+            confirmOverlay.style.cssText = 'position:absolute;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);'
+            confirmOverlay.innerHTML = `
+              <style>
+                @keyframes lx-confirm-in { 0%{opacity:0;transform:translateY(20px) scale(0.97)} 100%{opacity:1;transform:none} }
+                @keyframes lx-checkpop { 0%{transform:scale(0) rotate(-20deg);opacity:0} 65%{transform:scale(1.18) rotate(4deg);opacity:1} 100%{transform:scale(1) rotate(0);opacity:1} }
+                @keyframes lx-ring-pop { 0%{transform:scale(1);opacity:0.7} 100%{transform:scale(1.75);opacity:0} }
+              </style>
+              <div style="background:#fff;border-radius:18px;width:min(400px,92vw);max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.22);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;animation:lx-confirm-in 0.4s cubic-bezier(0.25,1,0.5,1) both;">
+                <div style="padding:18px 20px 14px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center;">
+                  <span style="font-size:16px;font-weight:700;color:#1d1d1f;">Order confirmed</span>
+                  <div style="position:relative;width:34px;height:34px;flex-shrink:0;">
+                    <div style="position:absolute;inset:0;border-radius:50%;border:2px solid rgba(52,199,89,0.45);animation:lx-ring-pop 1.5s ease-out 0.2s infinite;"></div>
+                    <div style="width:34px;height:34px;border-radius:50%;background:#34c759;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(52,199,89,0.4);animation:lx-checkpop 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.1s both;">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                  </div>
+                </div>
+                <div style="padding:16px 20px;">
+                  <div style="font-size:13px;font-weight:600;color:#1d1d1f;margin-bottom:3px;">Thank you. Your order has been confirmed.</div>
+                  <div style="font-size:12px;color:#86868b;margin-bottom:16px;line-height:1.45;">A confirmation will be sent to customer@lennox.com. It may take a few minutes to arrive.</div>
+
+                  <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:16px;">
+                    <div style="display:flex;justify-content:space-between;"><span style="font-size:12px;color:#86868b;">Order number</span><span style="font-size:12px;font-weight:500;color:#007aff;">${orderIdShort}</span></div>
+                    <div style="display:flex;justify-content:space-between;"><span style="font-size:12px;color:#86868b;">Delivery</span><span style="font-size:12px;font-weight:600;color:#1d1d1f;">Arrives by ${deliveryStr}</span></div>
+                    ${addrLine ? `<div style="display:flex;justify-content:space-between;align-items:flex-start;"><span style="font-size:12px;color:#86868b;">Shipping address</span><span style="font-size:12px;font-weight:500;color:#1d1d1f;text-align:right;max-width:55%;">${addrLine}</span></div>` : ''}
+                  </div>
+
+                  <div style="display:flex;gap:14px;background:#f5f5f7;border-radius:14px;padding:14px;margin-bottom:16px;align-items:center;">
+                    <img src="${orderItem?.image_url || `/assets/${orderItem?.id}.png`}" style="width:66px;height:66px;object-fit:contain;border-radius:10px;background:#fff;flex-shrink:0;" onerror="this.style.opacity='0'" />
+                    <div style="flex:1;min-width:0;">
+                      <div style="font-size:10px;color:#86868b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Lennox</div>
+                      <div style="font-size:14px;font-weight:600;color:#1d1d1f;line-height:1.3;">${productName}</div>
+                      <div style="font-size:12px;color:#86868b;margin-top:3px;">Qty: 1</div>
+                    </div>
+                    <div style="font-size:12px;font-weight:600;color:#86868b;flex-shrink:0;">See dealer</div>
+                  </div>
+
+                  <div style="background:#f5f5f7;border-radius:12px;padding:12px 14px;margin-bottom:16px;">
+                    <div style="display:flex;justify-content:space-between;font-size:12px;color:#86868b;margin-bottom:5px;"><span>Payment method</span><span>Visa ••3297</span></div>
+                    <div style="display:flex;justify-content:space-between;font-size:12px;color:#86868b;margin-bottom:5px;"><span>Subtotal</span><span>Contact dealer</span></div>
+                    <div style="display:flex;justify-content:space-between;font-size:12px;color:#86868b;margin-bottom:5px;"><span>Installation & shipping</span><span>Contact dealer</span></div>
+                    <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;color:#1d1d1f;padding-top:8px;border-top:1px solid #e8e8ed;margin-top:4px;"><span>Total price</span><span>Contact dealer</span></div>
+                  </div>
+
+                  <div style="display:flex;gap:10px;align-items:flex-start;background:#f5f5f7;border-radius:12px;padding:12px 14px;font-size:11.5px;color:#86868b;line-height:1.45;">
+                    <span style="font-size:15px;flex-shrink:0;">🔧</span>
+                    <span>Need help? <a href="#" style="color:#007aff;text-decoration:none;">Contact Lennox Support</a> for installation, delivery, warranty, and returns.</span>
+                  </div>
+
+                  <button id="lennox-confirm-done-btn" style="width:100%;padding:13px;background:#1d1d1f;color:#fff;border:none;border-radius:28px;font-size:14px;font-weight:600;cursor:pointer;margin-top:14px;">Done</button>
+                </div>
+              </div>
+            `
+            ;(document.getElementById('swirl-ai-voice-modal') || document.body).appendChild(confirmOverlay)
+            confirmOverlay.addEventListener('click', (e) => { if (e.target === confirmOverlay) confirmOverlay.remove() })
+            confirmOverlay.querySelector('#lennox-confirm-done-btn')?.addEventListener('click', () => confirmOverlay.remove())
+          }, 1800)
 
         } catch (e) {
           console.error('[Lennox] Payment error:', e)
