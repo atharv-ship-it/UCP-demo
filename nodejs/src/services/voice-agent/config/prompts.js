@@ -6,7 +6,7 @@
 // DYNAMIC SYSTEM PROMPT BUILDER
 // ============================================================================
 
-import { getProductsDb } from '../../../data/db.ts'
+import { getProductsDb } from '../../../data/db.js'
 
 const getAllProductsForPrompt = () => {
   try {
