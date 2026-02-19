@@ -5227,7 +5227,7 @@
                 </div>
                 <div style="padding:16px 20px;">
                   <div style="font-size:13px;font-weight:600;color:#1d1d1f;margin-bottom:3px;">Thank you. Your order has been confirmed.</div>
-                  <div style="font-size:12px;color:#86868b;margin-bottom:16px;line-height:1.45;">A confirmation will be sent to customer@lennox.com. It may take a few minutes to arrive.</div>
+                  <div style="font-size:12px;color:#86868b;margin-bottom:16px;line-height:1.45;">A confirmation will be sent to your email. It may take a few minutes to arrive.</div>
 
                   <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:16px;">
                     <div style="display:flex;justify-content:space-between;"><span style="font-size:12px;color:#86868b;">Order number</span><span style="font-size:12px;font-weight:500;color:#007aff;">${orderIdShort}</span></div>

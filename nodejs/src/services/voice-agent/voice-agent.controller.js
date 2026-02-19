@@ -1,7 +1,7 @@
 import crypto from 'crypto'
 import fs from 'fs'
 import path from 'path'
-import { getProductsDb } from '../../data/db.ts'
+import { getProductsDb } from '../../data/db.js'
 import { getModelConfig, getModelsInfo, hasModel } from './core/config/index.js'
 import {
   validateMessage,
