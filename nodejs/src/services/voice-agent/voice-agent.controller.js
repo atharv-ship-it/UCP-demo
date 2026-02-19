@@ -1,7 +1,6 @@
 import crypto from 'crypto'
 import fs from 'fs'
 import path from 'path'
-import { fileURLToPath } from 'url'
 import { getProductsDb } from '../../data/db.ts'
 import { getModelConfig, getModelsInfo, hasModel } from './core/config/index.js'
 import {
@@ -47,9 +46,6 @@ import {
   getEMICalculatorConfig
 } from './services/finance-service.js'
 import { evaluateNudge } from './services/nudge-engine.js'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
 
 // Debug logging flag - set VOICE_AGENT_DEBUG=true in .env to enable
 const DEBUG = process.env.VOICE_AGENT_DEBUG === 'true'
