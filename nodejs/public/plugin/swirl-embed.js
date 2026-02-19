@@ -50,7 +50,11 @@
   // ===================================================
 
   const LOCAL = document.querySelector('script[src="plugin/swirl-embed.js"]') ? true : false
-  const BASE_URL = 'http://localhost:3000/' // Lennox UCP backend
+  const BASE_URL = (() => {
+    const h = window.location.hostname
+    if (h === 'localhost' || h === '127.0.0.1') return 'http://localhost:3000/'
+    return window.location.origin + '/'
+  })()
   const TRIGGER_BASE_PATH = LOCAL ? '../triggers/' : 'https://nudge-voice-plugin.s3.ap-south-1.amazonaws.com/triggers/'
 
   const CONFIG = {
