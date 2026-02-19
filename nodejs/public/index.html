@@ -1,101 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gemini - Lennox AC Assistant</title>
-  <link rel="stylesheet" href="/styles.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plugin Test Page</title>
 </head>
-<body>
-  <div class="app-container">
-    <!-- Minimal Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-top">
-        <button class="icon-btn" id="menuToggle">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="18" x2="21" y2="18"></line>
-          </svg>
-        </button>
-        <button class="icon-btn" id="newChat" title="New chat">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 20h9"></path>
-            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-          </svg>
-        </button>
-      </div>
-      <div class="sidebar-bottom">
-        <button class="icon-btn" id="settingsBtn" title="Settings">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-          </svg>
-        </button>
-      </div>
-    </aside>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <!-- Header -->
-      <header class="header">
-        <div class="header-left">
-          <span class="app-title">Gemini</span>
-        </div>
-      </header>
+<body
+    style="margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; min-height: 300vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
 
-      <!-- Chat Container -->
-      <div class="chat-container" id="chatContainer">
-        <!-- Welcome Screen -->
-        <div class="welcome-screen" id="welcomeScreen">
-          <div class="welcome-content">
-            <div class="gemini-sparkle">
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                <path d="M16 2L18.5 12L28 16L18.5 20L16 30L13.5 20L4 16L13.5 12L16 2Z" fill="url(#sparkle-gradient)"/>
-                <defs>
-                  <linearGradient id="sparkle-gradient" x1="4" y1="2" x2="28" y2="30" gradientUnits="userSpaceOnUse">
-                    <stop stop-color="#4285f4"/>
-                    <stop offset="0.5" stop-color="#9b72cb"/>
-                    <stop offset="1" stop-color="#d96570"/>
-                  </linearGradient>
-                </defs>
-              </svg>
-              <span class="hi-text">Hi</span>
-            </div>
-            <h1 class="welcome-title">How can I help you?</h1>
-          </div>
-        </div>
+    <!-- Test content -->
+    <div style="max-width: 1200px; margin: 0 auto; padding: 60px 20px; color: white;">
+        <h1 style="font-size: 48px; text-align: center; margin-bottom: 60px;">Lennox AC</h1>
 
-        <!-- Messages Container -->
-        <div class="messages" id="messages"></div>
-      </div>
+        <div style="height: 300px;"></div>
+    </div>
 
-      <!-- Fixed Input Area at Bottom -->
-      <div class="fixed-input" id="fixedInput">
-        <div class="input-container">
-          <textarea
-            id="messageInput"
-            placeholder="Ask me about Lennox air conditioners..."
-            rows="1"
-          ></textarea>
-          <div class="input-bottom">
-            <div class="input-right-actions">
-              <button class="send-btn" id="sendBtn" disabled>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="22" y1="2" x2="11" y2="13"></line>
-                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <script src="/app.js"></script>
+    <!-- Lennox Voice Agent Plugin -->
+    <div id="swirl-ai-nva" data-id="" data-nudge-trigger="" data-send-prompt="true" data-default-prompt="Ask Lennox AI"></div>
+    <script src="plugin/swirl-embed.js"></script>
 </body>
+
 </html>

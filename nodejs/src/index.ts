@@ -3,9 +3,12 @@ import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { zValidator } from '@hono/zod-validator';
 import { type Context, Hono } from 'hono';
+import { cors } from 'hono/cors';
 import { requestId } from 'hono/request-id';
 import { pinoHttp } from 'pino-http';
 import { mkdirSync } from 'fs';
+// @ts-ignore - JS module, no types needed
+import voiceAgentRouter from './services/voice-agent/voice-agent.router.js';
 
 // ✅ ROOT FIX: Removed AgentService - using pure UCP APIs instead
 import { CheckoutService, zCompleteCheckoutRequest } from './api/checkout';
@@ -25,6 +28,14 @@ import {
 import { IdParamSchema, prettyValidation } from './utils/validation';
 
 const app = new Hono();
+
+/* -------------------- CORS -------------------- */
+
+app.use('/*', cors({
+  origin: '*',
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization'],
+}));
 
 /* -------------------- DB INIT -------------------- */
 
@@ -505,7 +516,9 @@ Set show_products to true when you want to display the recommended products to t
   }
 });
 
-/* ✅ ROOT FIX: REMOVED /agent endpoints - frontend uses pure UCP APIs instead */
+/* -------------------- VOICE AGENT -------------------- */
+
+app.route('/voice-agent', voiceAgentRouter);
 
 /* -------------------- STATIC -------------------- */
 
@@ -519,6 +532,6 @@ const port = parseInt(process.env.PORT || '3000', 10);
 serve(
   { fetch: app.fetch, port, hostname: '0.0.0.0' },
   (info) => {
-    console.log(`UCP Backend running on http://0.0.0.0:${info.port}`);
+    console.log(`UCP Backend running on http://localhost:${info.port}`);
   },
 );

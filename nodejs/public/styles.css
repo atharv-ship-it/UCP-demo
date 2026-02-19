@@ -1,792 +1,4922 @@
-/* Gemini UI Clone for Lennox AC with UCP Checkout */
+/* ===================================================
+   SWIRL AI NUDGE PLUGIN - EXACT FIGMA DESIGN 
+   Based on Figma: Frame 427318960
+   =================================================== */
 
-:root {
-  /* Light theme colors (matching Gemini) */
-  --bg-primary: #f0f4f9;
-  --bg-secondary: #ffffff;
-  --bg-hover: #e8eaed;
-  --bg-active: #d3d7db;
+/* Google Fonts - Montserrat (400, 500, 600, 700) */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
-  --text-primary: #1f1f1f;
-  --text-secondary: #5f6368;
-  --text-muted: #80868b;
-
-  --border-color: #e0e0e0;
-  --border-light: #dadce0;
-
-  /* Accent colors */
-  --accent-blue: #4285f4;
-  --accent-green: #34a853;
-
-  /* Sizing */
-  --sidebar-width: 68px;
-  --header-height: 56px;
-  --max-content-width: 800px;
-
-  /* Transitions */
-  --transition-fast: 0.15s ease;
-  --transition-normal: 0.25s ease;
+/* CSS Reset for Plugin */
+.swirl-ai-prompt-container,
+.swirl-ai-prompt-container *,
+.swirl-ai-prompt-container *::before,
+.swirl-ai-prompt-container *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-* {
+/* ===================================================
+   FLOATING NUDGE CONTAINER - CENTER BOTTOM
+   Frame 427318960
+   =================================================== */
+
+.swirl-ai-prompt-container {
+  /* Auto layout */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0px;
+  isolation: isolate;
+
+  position: fixed;
+  width: auto;
+  /* Auto width to accommodate different bubble sizes */
+  /* height: 80px; */
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 30px;
+
+  z-index: 999999;
+  cursor: pointer;
+  pointer-events: all;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===================================================
+   AI ICON GROUP - LEFT SIDE WITH OVERLAP
+   Group 37741
+   =================================================== */
+
+.swirl-ai-prompt-icon-group {
+  width: 70px;
+  height: 70px;
+  position: relative;
+
+  /* Inside auto layout */
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+  margin: 0px -70px 0px 0px;
+  /* Negative margin for overlap */
+  z-index: 2;
+}
+
+/* Blur background effect - Group 37740 */
+.swirl-ai-prompt-icon-blur {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0px;
+  top: 0px;
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+/* Ellipse 12 */
+.swirl-ai-prompt-icon-blur::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background: #B3C5C6;
+  opacity: 0.89;
+  border-radius: 50%;
+}
+
+/* Ellipse 13 */
+.swirl-ai-prompt-icon-blur::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background: #C5CFD3;
+  opacity: 0.89;
+  border-radius: 50%;
+}
+
+/* Animated GIF Icon */
+.swirl-ai-prompt-icon {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  border-radius: 40px;
+  overflow: hidden;
+  z-index: 3;
+}
+
+.swirl-ai-prompt-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 40px;
+  display: block;
+}
+
+/* ===================================================
+   PROMPT BUBBLE - MAIN CONTAINER
+   Default: Frame 14173:36287 (padding-left 68px, width 318px)
+   Shuffled: Frame 14173:39005 (padding-left 92px, width 557px)
+   =================================================== */
+
+.swirl-ai-prompt-bubble {
+  /* Auto layout */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 10px 8px 80px;
+  /* Default: 68px left padding */
+
+  width: auto;
+  /* Auto width */
+  /* min-width: 320px; */
+  max-width: 400px;
+  /* Max width before wrapping */
+  height: auto;
+  min-height: 60px;
+
+  background: linear-gradient(270deg, rgba(73, 69, 84, 0.74) 0%, rgba(73, 69, 116, 0.74) 100%);
+  border-radius: 44px;
+
+  /* Subtle white border from Figma */
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+
+  /* Inside auto layout */
+  flex: none;
+  order: 1;
+  flex-grow: 0;
+  z-index: 1;
+
+  opacity: 0;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Animated gradient border */
+.swirl-ai-prompt-bubble::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 44px;
+  padding: 2px;
+  background: linear-gradient(90deg,
+      rgba(139, 92, 246, 0.4),
+      rgba(59, 130, 246, 0.4),
+      rgba(139, 92, 246, 0.4));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  animation: borderRotate 3s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes borderRotate {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.swirl-ai-prompt-bubble:hover::before {
+  opacity: 1;
+}
+
+/* Multi-line prompts - more left padding */
+.swirl-ai-prompt-bubble.multiline {
+  padding-left: 85px;
+  /* 92px for multi-line prompts */
+  max-width: 400px;
+  /* Allow wider for multi-line */
+}
+
+/* Visible state - no transform animation */
+.swirl-ai-prompt-bubble.visible {
+  opacity: 1;
+}
+
+/* Thinking state */
+.swirl-ai-prompt-bubble.thinking {
+  opacity: 0.7;
+}
+
+/* ===================================================
+   INNER CONTENT - TEXT + ARROW
+   Default: Frame 14173:36288 (gap 34px)
+   Shuffled: Frame 14173:39006 (gap 42px)
+   =================================================== */
+
+.swirl-ai-prompt-content {
+  /* Auto layout */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  /* Arrow always at right end */
+  padding: 0px;
+  gap: 10px;
+  /* Min gap: 34px */
+  width: 100%;
+
+  /* Inside auto layout */
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+}
+
+/* Multi-line prompts - wider gap */
+.swirl-ai-prompt-content.multiline {
+  gap: 10px;
+  /* 42px for multi-line shuffled prompts */
+}
+
+/* ===================================================
+   PROMPT TEXT
+   Default: "Ask BYD AI" - node-id: 14173:36289 (20px, single line)
+   Shuffled: Multi-line prompts - node-id: 14173:39007 (22px, multi-line)
+   =================================================== */
+
+.swirl-ai-prompt-text {
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-style: normal;
+  font-size: 15px;
+  /* Reduced from 20px */
+  line-height: 22px;
+  /* Adjusted line-height */
+
+  color: #FFFFFF;
+
+  /* Inside auto layout */
+  flex: 1;
+  /* Grow to fill space, but arrow stays at right */
+  order: 0;
+  max-width: 400px;
+  /* Max width before wrapping */
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Multi-line shuffled prompts - larger text */
+.swirl-ai-prompt-text.multiline {
+  font-size: 15px;
+  /* Reduced from 22px */
+  white-space: normal;
+  /* Allow wrapping */
+  max-width: 450px;
+  line-height: 24px;
+  /* Adjusted line-height */
+}
+
+/* Hide text when thinking */
+.swirl-ai-prompt-bubble.thinking .swirl-ai-prompt-text {
+  opacity: 0.5;
+}
+
+/* ===================================================
+   UP ARROW BUTTON - ALWAYS AT RIGHT END
+   Frame 427318962
+   =================================================== */
+
+.swirl-ai-prompt-arrow {
+  /* Auto layout */
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  gap: 4px;
+
+  width: 45px;
+  height: 46px;
+  flex-shrink: 0;
+  /* Never shrink */
+
+  background: rgba(203, 194, 194, 0.2);
+  opacity: 0.7;
+  border-radius: 28px;
+
+  /* Inside auto layout */
+  flex: none;
+  order: 1;
+  flex-grow: 0;
+  margin-left: auto;
+  /* Push to right */
+
+  transition: all 0.3s ease;
+}
+
+.swirl-ai-prompt-arrow:hover {
+  opacity: 1;
+  background: rgba(203, 194, 194, 0.3);
+}
+
+/* Arrow SVG Icon */
+.swirl-ai-prompt-arrow svg {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+}
+
+/* ===================================================
+   HOVER EFFECTS
+   =================================================== */
+
+.swirl-ai-prompt-container:hover .swirl-ai-prompt-bubble {
+  background: linear-gradient(270deg, rgba(73, 69, 84, 0.84) 0%, rgba(73, 69, 116, 0.84) 100%);
+}
+
+/* ===================================================
+   MOBILE RESPONSIVE
+   =================================================== */
+
+@media (max-width: 480px) {
+  .swirl-ai-prompt-container {
+    width: auto;
+    /* Max 85% width on mobile */
+    max-width: none;
+    height: auto;
+    bottom: 20px;
+  }
+
+  .swirl-ai-prompt-icon-group {
+    width: 65px;
+    height: 65px;
+    margin: 0px -65px 0px 0px;
+  }
+
+  .swirl-ai-prompt-bubble {
+    width: 100%;
+    min-width: auto;
+    max-width: 100%;
+    min-height: 60px;
+    padding: 8px 10px 8px 75px;
+  }
+
+  .swirl-ai-prompt-bubble.multiline {
+    padding-left: 75px;
+    max-width: 100%;
+  }
+
+  .swirl-ai-prompt-content {
+    gap: 10px;
+  }
+
+  .swirl-ai-prompt-text {
+    font-size: 12px;
+    max-width: none;
+    flex: 1;
+  }
+
+  .swirl-ai-prompt-text.multiline {
+    font-size: 12px;
+    max-width: none;
+    width: 205px;
+  }
+
+  .swirl-ai-prompt-arrow {
+    width: 40px;
+    height: 40px;
+    padding: 12px;
+  }
+
+  .swirl-ai-prompt-arrow svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* ===================================================
+   ACCESSIBILITY
+   =================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .swirl-ai-prompt-bubble,
+  .swirl-ai-prompt-icon,
+  .swirl-ai-prompt-arrow {
+    transition: none;
+  }
+}
+
+/* Focus visible for keyboard navigation */
+.swirl-ai-prompt-container:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 4px;
+  border-radius: 44px;
+}
+
+/* ===================================================
+   VOICE AGENT MODAL - FULL SCREEN OVERLAY
+   =================================================== */
+
+.swirl-ai-voice-modal {
+  /* Full screen fixed positioning */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  width: 100dvw;
+  height: 100vh;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+
+  /* Styling */
+  background: radial-gradient(190.72% 89.47% at 50.13% 50%, #4C4D50 0%, #222121 24.35%), linear-gradient(0deg, #252728 0%, #252728 100%), linear-gradient(179deg, rgba(0, 44, 53, 0.00) -12.26%, rgba(1, 19, 23, 0.00) 132.76%);
+  z-index: 10000000;
+
+  /* Display control - NO display: none, we use opacity */
+  visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transform: translateY(100%);
+  transition: opacity 0.4s ease-in-out,
+    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0.4s;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /* Font family for modal content */
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: white;
 }
 
-body {
-  font-family: 'Google Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  line-height: 1.6;
+/* Reset all children */
+.swirl-ai-voice-modal *,
+.swirl-ai-voice-modal *::before,
+.swirl-ai-voice-modal *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.swirl-ai-voice-modal.active {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Opening animation */
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Closing animation */
+@keyframes modalSlideDown {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+
+.swirl-ai-voice-modal.opening {
+  animation: modalSlideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.swirl-ai-voice-modal.closing {
+  animation: modalSlideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Disable body scroll when modal is open */
+body.swirl-ai-modal-open {
   overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
 }
 
-/* App Container */
-.app-container {
-  display: flex;
-  height: 100vh;
-  width: 100vw;
+/* Hide modal scrollbar */
+.swirl-ai-voice-modal::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari, Opera */
 }
 
-/* ===== MINIMAL SIDEBAR ===== */
-.sidebar {
-  width: var(--sidebar-width);
-  background: var(--bg-primary);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 12px 0;
+.swirl-ai-voice-modal {
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
 }
 
-.sidebar-top,
-.sidebar-bottom {
-  display: flex;
-  flex-direction: column;
+/* ===================================================
+   MODAL HEADER - FROM FIGMA
+   Component 210: node-id 13896:87762
+   =================================================== */
+
+.swirl-ai-voice-header {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
   align-items: center;
-  gap: 8px;
+  gap: 20px;
+  padding: 10px 20px;
+  background: transparent;
+  flex-shrink: 0;
+  width: 100%;
 }
 
-.icon-btn {
+/* Menu button (left) */
+.swirl-ai-voice-menu-btn {
   width: 44px;
   height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
+  background: rgba(255, 255, 255, 0.1);
   border: none;
-  border-radius: 50%;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background var(--transition-fast);
-}
-
-.icon-btn:hover {
-  background: var(--bg-hover);
-}
-
-/* ===== MAIN CONTENT ===== */
-.main-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  background: var(--bg-primary);
-}
-
-/* Header */
-.header {
-  height: var(--header-height);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  background: var(--bg-primary);
-  border-bottom: 1px solid var(--border-light);
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.app-title {
-  font-size: 22px;
-  font-weight: 400;
-  color: var(--text-secondary);
-}
-
-/* ===== CHAT CONTAINER ===== */
-.chat-container {
-  flex: 1;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  scroll-behavior: smooth;
-  padding-bottom: 120px; /* Space for fixed input */
-}
-
-/* Welcome Screen */
-.welcome-screen {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 24px;
-}
-
-.welcome-content {
-  text-align: center;
-  max-width: 600px;
-}
-
-.gemini-sparkle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.hi-text {
-  font-size: 48px;
-  font-weight: 400;
-  color: var(--text-primary);
-}
-
-.welcome-title {
-  font-size: 28px;
-  font-weight: 400;
-  color: var(--text-primary);
-  line-height: 1.4;
-}
-
-/* Fixed Input at Bottom */
-.fixed-input {
-  position: fixed;
-  bottom: 0;
-  left: var(--sidebar-width);
-  right: 0;
-  background: var(--bg-primary);
-  padding: 16px 24px 24px;
-  z-index: 100;
-}
-
-.fixed-input .input-container {
-  max-width: var(--max-content-width);
-  margin: 0 auto;
-  background: var(--bg-secondary);
-  border-radius: 24px;
-  border: 1px solid var(--border-light);
-  padding: 12px 16px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-}
-
-.input-container {
-  background: var(--bg-secondary);
-  border-radius: 24px;
-  border: 1px solid var(--border-light);
-  padding: 12px 16px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-}
-
-.input-container textarea {
-  width: 100%;
-  border: none;
-  outline: none;
-  resize: none;
-  font-family: inherit;
-  font-size: 16px;
-  line-height: 1.5;
-  color: var(--text-primary);
-  background: transparent;
-  min-height: 24px;
-  max-height: 200px;
-}
-
-.input-container textarea::placeholder {
-  color: var(--text-muted);
-}
-
-.input-bottom {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin-top: 8px;
-}
-
-.input-right-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.send-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: none;
-  background: var(--accent-blue);
-  color: white;
+  border-radius: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: opacity var(--transition-fast);
-}
-
-.send-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.send-btn:not(:disabled):hover {
-  opacity: 0.9;
-}
-
-/* Messages Container */
-.messages {
-  display: none;
-  flex-direction: column;
-  gap: 24px;
-  padding: 24px;
-  max-width: var(--max-content-width);
-  margin: 0 auto;
-  width: 100%;
-}
-
-.messages.visible {
-  display: flex;
-}
-
-/* Message Styles */
-.message {
-  display: flex;
-  gap: 16px;
-  animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.message-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
-}
-
-.message-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
+  padding: 0;
+  transition: all 0.3s ease;
   flex-shrink: 0;
+  justify-self: start;
 }
 
-.message.user .message-avatar {
-  background: var(--accent-blue);
-  color: white;
-  font-weight: 500;
+.swirl-ai-voice-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
 }
 
-.message.assistant .message-avatar {
-  background: linear-gradient(135deg, #4285f4 0%, #9b72cb 50%, #d96570 100%);
-  color: white;
+.swirl-ai-voice-menu-btn svg {
+  width: 18px;
+  height: 18px;
 }
 
-.message-role {
-  font-weight: 500;
-  color: var(--text-secondary);
-  font-size: 14px;
+/* Title (center) */
+.swirl-ai-voice-title {
+  font-family: 'Circular Std', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 28px;
+  color: #FFFFFF;
+  text-align: center;
+  justify-self: center;
+  white-space: nowrap;
 }
 
-.message-content {
-  flex: 1;
-  font-size: 16px;
-  line-height: 1.6;
-  color: var(--text-primary);
-}
-
-/* Typing Indicator */
-.typing-indicator {
-  display: flex;
-  gap: 4px;
-  padding: 12px 0;
-}
-
-.typing-indicator span {
-  width: 8px;
-  height: 8px;
-  background: var(--text-muted);
-  border-radius: 50%;
-  animation: typing 1.4s infinite;
-}
-
-.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-
-@keyframes typing {
-  0%, 60%, 100% { opacity: 0.3; }
-  30% { opacity: 1; }
-}
-
-/* Product Grid */
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
-  margin: 20px 0;
-  padding-left: 48px;
-}
-
-.product-card {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-light);
-  border-radius: 12px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.product-card:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  transform: translateY(-2px);
-}
-
-.product-image {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  background: #f5f5f5;
-}
-
-.product-info {
-  padding: 16px;
-}
-
-.product-series {
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin-bottom: 4px;
-}
-
-.product-name {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--text-primary);
-  margin-bottom: 8px;
-}
-
-.product-specs {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-bottom: 8px;
-}
-
-.spec-badge {
-  font-size: 11px;
-  padding: 4px 8px;
-  background: var(--bg-hover);
-  border-radius: 4px;
-  color: var(--text-secondary);
-}
-
-.spec-badge.highlight {
-  background: #e8f5e9;
-  color: var(--accent-green);
-  font-weight: 500;
-}
-
-.product-rating {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-  font-size: 14px;
-}
-
-.stars {
-  color: #fbbc04;
-}
-
-.rating-text {
-  color: var(--text-secondary);
-  font-size: 13px;
-}
-
-.product-price {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.price-symbol {
-  font-size: 20px;
-  color: var(--text-secondary);
-}
-
-.price-range {
-  font-size: 18px;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-/* Remove old conversation input styles - now using fixed input */
-
-/* ===== UCP CHECKOUT STYLES ===== */
-.ucp-checkout-container,
-.ucp-confirmation-container {
-  background: var(--bg-secondary);
-  border-radius: 16px;
-  border: 1px solid var(--border-light);
-  padding: 24px;
-  max-width: 500px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-  animation: slideUp 0.3s ease;
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.ucp-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.ucp-logo {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.ucp-close-btn {
-  background: none;
+/* Close button (right) - Down arrow */
+.swirl-ai-voice-close-btn {
+  width: 44px;
+  height: 44px;
+  background: transparent;
   border: none;
-  font-size: 28px;
-  color: var(--text-secondary);
-  cursor: pointer;
-  width: 32px;
-  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  justify-self: end;
+}
+
+.swirl-ai-voice-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 50%;
 }
 
-.ucp-close-btn:hover {
-  background: var(--bg-hover);
+.swirl-ai-voice-close-btn svg {
+  width: 24px;
+  height: 24px;
 }
 
-.ucp-title {
-  font-size: 24px;
-  font-weight: 500;
-  margin-bottom: 24px;
-  color: var(--text-primary);
-}
+/* ===================================================
+   MODAL CONTENT AREA
+   =================================================== */
 
-.ucp-product {
+.swirl-ai-voice-content {
+  flex: 1;
   display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  padding: 16px;
-  background: var(--bg-primary);
-  border-radius: 12px;
-  margin-bottom: 16px;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 20px 20px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
 }
 
-.ucp-product-img {
+.swirl-ai-voice-content::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari, Opera */
+}
+
+/* ===================================================
+   VOICE ICON - CENTER LOADING ANIMATION
+   =================================================== */
+
+.swirl-ai-voice-icon-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  position: relative;
+  flex-shrink: 0;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.swirl-ai-voice-icon-gif {
   width: 80px;
   height: 80px;
   object-fit: cover;
-  border-radius: 8px;
-  background: white;
+  border-radius: 50%;
 }
 
-.ucp-product-details {
-  flex: 1;
-}
-
-.ucp-product-name {
-  font-weight: 500;
-  margin-bottom: 4px;
-  color: var(--text-primary);
-}
-
-.ucp-product-meta {
+/* Status message under icon */
+.swirl-ai-status-message {
+  margin-top: 8px;
+  font-family: 'Montserrat', sans-serif;
   font-size: 14px;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
 }
 
-.ucp-product-price {
-  font-weight: 600;
-  font-size: 16px;
-  color: var(--text-primary);
-}
+/* ===================================================
+   CHAT MESSAGES AREA - CENTERED AI RESPONSES
+   =================================================== */
 
-.ucp-section {
+.swirl-ai-chat-messages {
+  width: 100%;
+  max-width: 900px;
+  flex: 1;
   display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 0;
+  overflow-y: auto;
+  margin-top: 10px;
+  /* Center items horizontally */
   align-items: center;
-  gap: 12px;
-  padding: 16px;
-  border-radius: 12px;
-  margin-bottom: 12px;
-  background: var(--bg-primary);
-  cursor: pointer;
-  transition: background var(--transition-fast);
+  /* Hide scrollbar */
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  position: relative;
 }
 
-.ucp-section:hover {
-  background: var(--bg-hover);
+.swirl-ai-chat-messages::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari, Opera */
 }
 
-.ucp-section-icon {
-  font-size: 24px;
-}
-
-.ucp-section-content {
-  flex: 1;
-}
-
-.ucp-section-title {
-  font-weight: 500;
-  margin-bottom: 2px;
-  color: var(--text-primary);
-}
-
-.ucp-section-subtitle {
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-.ucp-section-arrow {
+/* AI response text - LEFT ALIGNED, NO BOX per FIGMA DESIGN */
+.swirl-ai-response-message {
+  align-self: flex-start;
   background: none;
   border: none;
-  font-size: 24px;
-  color: var(--text-secondary);
-  cursor: pointer;
-}
-
-.ucp-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 0;
-  border-top: 1px solid var(--border-light);
-  margin-top: 8px;
-  margin-bottom: 16px;
-}
-
-.ucp-total-label {
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-.ucp-total-amount {
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.ucp-pay-btn {
-  width: 100%;
-  padding: 14px 24px;
-  background: var(--accent-blue);
+  border-radius: 0;
+  padding: 10px 0 0;
   color: white;
-  border: none;
-  border-radius: 24px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: normal;
   font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: opacity var(--transition-fast);
+  line-height: 24px;
+  word-wrap: break-word;
+  text-align: left;
+  box-shadow: none;
 }
 
-.ucp-pay-btn:hover {
-  opacity: 0.9;
+/* Markdown formatting in AI responses */
+.swirl-ai-response-message ul {
+  margin: 8px 0;
+  padding-left: 0;
+  list-style: none;
 }
 
-.gpay-icon {
-  font-weight: 700;
+.swirl-ai-response-message ul li {
+  margin: 6px 0;
+  padding-left: 20px;
+  position: relative;
+  line-height: 24px;
+}
+
+.swirl-ai-response-message ul li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: bold;
   font-size: 18px;
 }
 
-.ucp-disclaimer {
-  font-size: 11px;
-  color: var(--text-muted);
-  line-height: 1.4;
-  margin-top: 16px;
+.swirl-ai-response-message strong {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
 }
 
-/* Order Confirmation */
-.ucp-confirmation-header {
+.swirl-ai-response-message p {
+  margin: 8px 0;
+  line-height: 24px;
+}
+
+.swirl-ai-response-message p:first-child {
+  margin-top: 0;
+}
+
+/* Feature lines with emoji + bold title + description (e.g., 🎧 **Digital Key** — desc) */
+.swirl-ai-response-message p:has(strong):not(:has(br)) {
+  margin: 12px 0;
+  line-height: 26px;
+}
+
+/* User message - RIGHT ALIGNED with box (text mode only) */
+.swirl-ai-user-message {
+  align-self: flex-end;
+  max-width: 50%;
+  padding: 15px 15px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 21px;
+  color: #FFFFFF;
+  text-align: left;
+  word-wrap: break-word;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  /* Fade in animation */
+  animation: fadeIn 0.3s ease forwards;
+  margin-top: 32px;
+}
+
+/* ===================================================
+   VOICE FOOTER CONTAINER - USER PROMPT + CONTROLS
+   =================================================== */
+
+.swirl-ai-voice-footer-container {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  margin-bottom: 24px;
+  background: transparent;
+  z-index: 10;
+  padding: 0;
 }
 
-.ucp-check-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: #e8f5e9;
-  color: var(--accent-green);
+/* User Prompt Text - Toast Box Above Footer Controls (685px × 99px from Figma) */
+.swirl-ai-user-prompt-text {
+  width: 600px;
+  max-width: 600px;
+  height: auto;
+  margin: 0 auto 24px;
+  padding: 15px 15px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 21px;
+  color: #FFFFFF;
+  text-align: center;
+  word-wrap: break-word;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 32px;
-  font-weight: bold;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  /* Fade in animation */
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-.ucp-confirmation-title {
-  font-size: 28px;
-  font-weight: 500;
-  margin-bottom: 8px;
-  color: var(--text-primary);
+.swirl-ai-user-prompt-text[style*="display: flex"] {
+  opacity: 1;
 }
 
-.ucp-confirmation-subtitle {
-  font-size: 14px;
-  color: var(--text-secondary);
-  margin-bottom: 8px;
-}
+/* ===================================================
+   VOICE FOOTER - MIC BUTTON & CONTROLS
+   =================================================== */
 
-.ucp-confirmation-message {
-  font-size: 14px;
-  color: var(--text-secondary);
-  margin-bottom: 24px;
-}
-
-.ucp-confirmation-summary {
-  background: var(--bg-primary);
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 16px;
-}
-
-.ucp-summary-title {
-  font-weight: 600;
-  margin-bottom: 16px;
-  color: var(--text-primary);
-}
-
-.ucp-summary-product {
+.swirl-ai-voice-footer {
+  width: 100%;
   display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--border-light);
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 0 20px 25px;
+  background: transparent;
 }
 
-.ucp-summary-img {
-  width: 60px;
+/* Message Icon Button - Left (52px from Figma) */
+.swirl-ai-voice-message-btn {
+  width: 52px;
+  height: 52px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  -webkit-box-shadow: 0px 0px 10px 0px #ffffff;
+  box-shadow: 0px 0px 10px 0px #ffffff;
+}
+
+.swirl-ai-voice-message-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+}
+
+.swirl-ai-voice-message-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Voice Input Container - Soundwave bars + Mic button together (317px from Figma) */
+.swirl-ai-voice-input-container {
+  width: 317px;
+  max-width: 317px;
   height: 60px;
-  object-fit: cover;
-  border-radius: 8px;
-  background: white;
-}
-
-.ucp-summary-name {
-  font-weight: 500;
-  margin-bottom: 4px;
-}
-
-.ucp-summary-meta {
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-.ucp-summary-row {
   display: flex;
+  flex-direction: row;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
-  font-size: 14px;
+  gap: 22px;
+  padding: 4px 4px 4px 24px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(61, 71, 151, 0.96);
+  border-radius: 28px;
+  flex-shrink: 0;
 }
 
-.ucp-summary-row.total {
-  font-weight: 600;
-  font-size: 16px;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border-light);
-}
-
-.ucp-delivery-info,
-.ucp-order-updates {
+/* Soundwave Bars Container - EXACT FIGMA DESIGN - ALWAYS VISIBLE BY DEFAULT */
+.swirl-ai-voice-soundwave-bars {
+  flex: 1;
   display: flex;
-  gap: 12px;
-  padding: 16px;
-  background: var(--bg-primary);
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 100%;
+}
+
+/* ONLY hide bars when user is speaking (recognizing state) */
+.swirl-ai-voice-input-container.recognizing .swirl-ai-voice-soundwave-bars {
+  display: none;
+}
+
+/* Individual Soundwave Bar - EXACT FIGMA: 3px width, 9px height, #D9D9D9 color - STATIC (no animation) */
+.swirl-ai-voice-bar {
+  width: 3px;
+  height: 9px;
+  background: #D9D9D9;
   border-radius: 12px;
-  margin-bottom: 12px;
+  flex-shrink: 0;
 }
 
-.ucp-delivery-icon,
-.ucp-updates-icon {
-  font-size: 24px;
+/* Wave Animation - ONLY visible when user is speaking (recognizing mode) */
+.swirl-ai-voice-wave-animation {
+  flex: 1;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 
-.ucp-delivery-title {
-  font-weight: 500;
-  margin-bottom: 4px;
+.swirl-ai-voice-wave-animation img {
+  width: 120px;
+  height: 100%;
+  object-fit: cover;
 }
 
-.ucp-delivery-date {
+/* Show wave ONLY when recognizing (bars hide) */
+.swirl-ai-voice-input-container.recognizing .swirl-ai-voice-wave-animation {
+  display: flex !important;
+}
+
+/* Microphone Button - ALWAYS ON THE RIGHT INSIDE CONTAINER */
+.swirl-ai-voice-mic-btn {
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  min-height: 52px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  order: 2;
+  margin-left: auto;
+}
+
+.swirl-ai-voice-mic-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+}
+
+.swirl-ai-voice-mic-btn svg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* Active/Recording State */
+.swirl-ai-voice-mic-btn.active {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Muted State */
+.swirl-ai-voice-mic-btn.muted {
+  background: rgba(255, 100, 100, 0.3);
+}
+
+.swirl-ai-voice-mic-btn.muted:hover {
+  background: rgba(255, 100, 100, 0.4);
+}
+
+/* Mic Icons */
+.swirl-ai-mic-icon-unmuted,
+.swirl-ai-mic-icon-muted {
+  transition: opacity 0.2s ease;
+}
+
+/* ===================================================
+   LOADING OVERLAY
+   =================================================== */
+
+.swirl-ai-loading-overlay {
+  width: 100%;
+  height: 100dvh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  /* backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.3); */
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.swirl-ai-loading-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px 0;
+}
+
+.swirl-ai-loading-icon {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+}
+
+.swirl-ai-loading-text {
+  font-family: 'Circular Std', 'Montserrat', sans-serif;
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 400;
+  background: linear-gradient(to left, #759ff9 0%, #e2f2ff 85.353%, #537ce3 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-align: center;
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* Make chat container unscrollable when loading and dim all children except overlay */
+.swirl-ai-chat-messages.loading {
+  overflow: hidden !important;
+  position: relative;
+}
+
+/* Dim all children when loading (except loading overlay) */
+.swirl-ai-chat-messages.loading>*:not(.swirl-ai-loading-overlay) {
+  opacity: 0.3;
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+  .swirl-ai-loading-text {
+    font-size: 14px;
+    line-height: 22px;
+  }
+}
+
+/* ===================================================
+   AI RESPONSE COMPONENT
+   =================================================== */
+
+/* Response Container */
+.swirl-ai-response-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 0 24px;
+  margin-top: 40px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Response Header Text */
+.swirl-ai-response-header {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 21px;
+  line-height: 36px;
+  color: #FFFFFF;
+  margin: 0;
+  text-align: left;
+}
+
+/* Swiper Container */
+.swirl-ai-cards-swiper {
+  width: 100%;
+  margin: 0 auto;
+  padding: 10px 0;
+  position: relative;
+}
+
+.swirl-ai-cards-swiper .swiper-wrapper {
+  display: flex;
+  align-items: stretch;
+}
+
+.swirl-ai-cards-swiper .swiper-slide {
+  height: auto;
+  display: flex;
+  justify-content: center;
+}
+
+/* Individual Vehicle Card */
+.swirl-ai-vehicle-card {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 2px 2px 12px 0px rgba(226, 219, 219, 0.25);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+/* Card Title Section */
+.swirl-ai-card-title {
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+}
+
+.swirl-ai-card-title p {
+
+  font-size: 16px;
+  line-height: 16px;
+  color: #FFFFFF;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Card Image Section */
+.swirl-ai-card-image {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.swirl-ai-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 50%;
+  display: block;
+}
+
+/* Card Features Section */
+.swirl-ai-card-features {
+  padding: 8px 12px;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Individual Feature Item */
+.swirl-ai-feature-item {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+/* Checkmark Icon */
+.swirl-ai-check-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.swirl-ai-check-icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Feature Text */
+.swirl-ai-feature-item p {
+
   font-size: 14px;
-  color: var(--accent-green);
-  margin-bottom: 8px;
+  line-height: 16px;
+  color: #FFFFFF;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.ucp-delivery-address {
-  font-size: 14px;
-  color: var(--text-secondary);
-  line-height: 1.5;
+/* Swiper Navigation Buttons */
+.swirl-ai-cards-swiper .swiper-button-prev,
+.swirl-ai-cards-swiper .swiper-button-next {
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transition: all 0.3s ease;
 }
 
-.ucp-updates-text {
-  font-size: 14px;
-  color: var(--text-secondary);
-  line-height: 1.5;
+.swirl-ai-cards-swiper .swiper-button-prev:hover,
+.swirl-ai-cards-swiper .swiper-button-next:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
 }
 
-/* Purchase Link Button */
-.purchase-link-btn {
-  display: inline-flex;
+.swirl-ai-cards-swiper .swiper-button-prev:after,
+.swirl-ai-cards-swiper .swiper-button-next:after {
+  font-size: 18px;
+  font-weight: bold;
+  color: #FFFFFF;
+}
+
+.swirl-ai-cards-swiper .swiper-button-prev.swiper-button-disabled,
+.swirl-ai-cards-swiper .swiper-button-next.swiper-button-disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Swiper Pagination */
+.swirl-ai-cards-swiper .swiper-pagination {
+  bottom: 20px !important;
+}
+
+.swirl-ai-cards-swiper .swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.4);
+  opacity: 1;
+  transition: all 0.3s ease;
+}
+
+.swirl-ai-cards-swiper .swiper-pagination-bullet-active {
+  width: 24px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* ===================================================
+   AI MEDIA RESPONSE COMPONENT (Images/Videos) - FIGMA EXACT
+   =================================================== */
+
+/* Media Container */
+.swirl-ai-media-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 0;
+  margin-top: 15px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Media Header (Videos/Images title with icon) */
+.swirl-ai-media-header {
+  display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 24px;
-  background: var(--accent-blue);
-  color: white;
-  border: none;
-  border-radius: 24px;
-  font-size: 15px;
+  font-size: 18px;
+  line-height: 24px;
   font-weight: 500;
-  cursor: pointer;
-  text-decoration: none;
-  transition: opacity var(--transition-fast);
+  color: white;
 }
 
-.purchase-link-btn:hover {
+.swirl-ai-media-header svg {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+}
+
+/* Media Swiper Container */
+.swirl-ai-media-swiper {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  position: relative;
+}
+
+.swirl-ai-media-swiper .swiper-wrapper {
+  display: flex;
+  align-items: stretch;
+}
+
+.swirl-ai-media-swiper .swiper-slide {
+  height: auto;
+  display: flex;
+  justify-content: center;
+}
+
+/* Media Card - EXACT FIGMA (347px × 215px from design) */
+.swirl-ai-media-card {
+  width: 100%;
+  background: #5c6166;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+/* Media Wrapper (for video/image + overlays) */
+.swirl-ai-media-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #000;
+}
+
+/* Media Image */
+.swirl-ai-media-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Media Video */
+.swirl-ai-media-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Video Duration Badge (bottom-left) */
+.swirl-ai-media-duration {
+  position: absolute;
+  left: 59px;
+  bottom: 16px;
+  background: #F5F5F5;
+  padding: 0 8px;
+  height: 16px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 10px;
+  line-height: 20px;
+  color: #747477;
+  z-index: 2;
+}
+
+/* Video Progress Bar Container (bottom of video) */
+.swirl-ai-media-progress-container {
+  position: absolute;
+  left: 3px;
+  bottom: 6px;
+  width: calc(100% - 6px);
+  height: 6px;
+  z-index: 1;
+}
+
+.swirl-ai-media-progress-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: rgba(215, 215, 215, 0.7);
+  border-radius: 3px;
+}
+
+.swirl-ai-media-progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 6px;
+  background: #FFFFFF;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Expand Icon (top-right) */
+.swirl-ai-media-expand {
+  position: absolute;
+  top: 23px;
+  right: 25px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+  z-index: 3;
+}
+
+.swirl-ai-media-expand:hover {
+  opacity: 1;
+}
+
+.swirl-ai-media-expand svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Features Section (below media) */
+.swirl-ai-media-features {
+  padding: 4px 12px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  min-height: 30px;
+  font-size: 14px;
+}
+
+/* Individual Feature Item */
+.swirl-ai-media-feature-item {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+/* Checkmark Icon */
+.swirl-ai-media-check-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.swirl-ai-media-check-icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Feature Text */
+.swirl-ai-media-feature-item p {
+
+  font-size: 16px;
+  line-height: 16px;
+  color: #FFFFFF;
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* NEW VIDEO CARD DESIGN - FIGMA EXACT */
+.swirl-ai-video-card {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.swirl-ai-video-thumbnail {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  display: block;
+  text-decoration: none;
+}
+
+.swirl-ai-video-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.swirl-ai-video-expand {
+  position: absolute;
+  top: 23px;
+  right: 5px;
+  width: 20px;
+  height: 20px;
+  z-index: 3;
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+  display: none !important;
+}
+
+.swirl-ai-video-expand:hover {
+  opacity: 1;
+}
+
+.swirl-ai-video-duration-wrapper {
+  position: absolute;
+  bottom: 0;
+  left: 3px;
+  right: 3px;
+  z-index: 2;
+}
+
+.swirl-ai-video-duration {
+  position: absolute;
+  left: 0;
+  bottom: 21px;
+  background: #F5F5F5;
+  padding: 0 8px;
+  height: 16px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateX(-50%);
+
+  font-size: 10px;
+  line-height: 20px;
+  color: #747477;
+  transition: left 0.3s ease;
+}
+
+.swirl-ai-video-progress {
+  position: absolute;
+  bottom: 6px;
+  left: 0;
+  right: 0;
+  height: 6px;
+  display: flex;
+}
+
+.swirl-ai-video-progress-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: rgba(215, 215, 215, 0.7);
+  border-radius: 3px;
+}
+
+.swirl-ai-video-progress-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 6px;
+  background: white;
+  border-radius: 3px;
+  transition: width 0.3s ease, left 0.3s ease;
+}
+
+.swirl-ai-video-features {
+  padding: 4px 8px 6px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.swirl-ai-video-feature {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.swirl-ai-video-feature svg {
+  flex-shrink: 0;
+}
+
+.swirl-ai-video-feature span {
+  font-size: 10px;
+  line-height: 11px;
+  color: white;
+  white-space: nowrap;
+}
+
+/* Media Swiper Navigation - HIDE by default, show on container hover */
+.swirl-ai-media-swiper .swiper-button-prev,
+.swirl-ai-media-swiper .swiper-button-next {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.swirl-ai-media-container:hover .swiper-button-prev,
+.swirl-ai-media-container:hover .swiper-button-next {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.swirl-ai-media-swiper .swiper-button-prev:hover,
+.swirl-ai-media-swiper .swiper-button-next:hover {
+  background: rgba(255, 255, 255, 0.4);
+  transform: scale(1.1);
+}
+
+.swirl-ai-media-swiper .swiper-button-prev:after,
+.swirl-ai-media-swiper .swiper-button-next:after {
+  font-size: 16px;
+  font-weight: bold;
+  color: #FFFFFF;
+}
+
+/* Media Swiper Wrapper for positioning navigation */
+.swirl-ai-media-swiper-wrapper {
+  position: relative;
+}
+
+/* Custom Navigation Buttons */
+.swirl-ai-media-nav-prev,
+.swirl-ai-media-nav-next {
+  position: absolute;
+  top: calc(50% - 16px);
+  z-index: 10;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.swirl-ai-media-nav-prev {
+  left: 5px;
+}
+
+.swirl-ai-media-nav-next {
+  right: 5px;
+}
+
+.swirl-ai-media-nav-prev.swiper-button-disabled,
+.swirl-ai-media-nav-next.swiper-button-disabled {
+  display: none !important;
+}
+
+/* Hide navigation buttons on mobile */
+@media (max-width: 768px) {
+
+  .swirl-ai-media-nav-prev,
+  .swirl-ai-media-nav-next {
+    display: none !important;
+  }
+}
+
+/* Reviews Swiper Wrapper for positioning navigation */
+.swirl-ai-reviews-swiper-wrapper {
+  position: relative;
+}
+
+/* Reviews Navigation Buttons */
+.swirl-ai-reviews-nav-prev,
+.swirl-ai-reviews-nav-next {
+  position: absolute;
+  top: calc(50% - 16px);
+  z-index: 10;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.swirl-ai-reviews-nav-prev {
+  left: 5px;
+}
+
+.swirl-ai-reviews-nav-next {
+  right: 5px;
+}
+
+.swirl-ai-reviews-nav-prev.swiper-button-disabled,
+.swirl-ai-reviews-nav-next.swiper-button-disabled {
+  display: none !important;
+}
+
+/* Hide reviews navigation buttons on mobile */
+@media (max-width: 768px) {
+
+  .swirl-ai-reviews-nav-prev,
+  .swirl-ai-reviews-nav-next {
+    display: none !important;
+  }
+}
+
+/* Comparison Cards Swiper Wrapper */
+.swirl-ai-comparison-swiper-wrapper {
+  position: relative;
+}
+
+/* Comparison Cards Navigation Buttons */
+.swirl-ai-comparison-nav-prev,
+.swirl-ai-comparison-nav-next {
+  position: absolute;
+  top: calc(50% - 16px);
+  z-index: 10;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.swirl-ai-comparison-nav-prev {
+  left: 5px;
+}
+
+.swirl-ai-comparison-nav-next {
+  right: 5px;
+}
+
+.swirl-ai-comparison-nav-prev.swiper-button-disabled,
+.swirl-ai-comparison-nav-next.swiper-button-disabled {
+  display: none !important;
+}
+
+/* Vehicle Cards Swiper Wrapper */
+.swirl-ai-cards-swiper-wrapper {
+  position: relative;
+}
+
+/* Vehicle Cards Navigation Buttons */
+.swirl-ai-cards-nav-prev,
+.swirl-ai-cards-nav-next {
+  position: absolute;
+  top: calc(50% - 16px);
+  z-index: 10;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.swirl-ai-cards-nav-prev {
+  left: 5px;
+}
+
+.swirl-ai-cards-nav-next {
+  right: 5px;
+}
+
+.swirl-ai-cards-nav-prev.swiper-button-disabled,
+.swirl-ai-cards-nav-next.swiper-button-disabled {
+  display: none !important;
+}
+
+/* Hide all navigation buttons on mobile */
+@media (max-width: 768px) {
+
+  .swirl-ai-comparison-nav-prev,
+  .swirl-ai-comparison-nav-next,
+  .swirl-ai-cards-nav-prev,
+  .swirl-ai-cards-nav-next {
+    display: none !important;
+  }
+}
+
+/* ===================================================
+   BOOKING SLOTS GRID
+   =================================================== */
+
+.swirl-ai-booking-slots-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 15px;
+  width: 100%;
+}
+
+.swirl-ai-booking-slots-header {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  font-weight: normal;
+  line-height: 1.5;
+  color: #FFFFFF;
+  margin: 0;
+  padding: 0;
+}
+
+.swirl-ai-booking-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  width: 100%;
+}
+
+.swirl-ai-booking-slot-card {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.3s ease;
+}
+
+.swirl-ai-booking-slot-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.swirl-ai-slot-date-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.swirl-ai-calendar-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.swirl-ai-slot-date {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #FFFFFF;
+  line-height: 1.4;
+}
+
+.swirl-ai-slot-times {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.swirl-ai-time-pill {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.swirl-ai-time-pill:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.swirl-ai-time-pill.selected {
+  background: linear-gradient(135deg, #4158D0 0%, #C850C0 100%);
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(65, 88, 208, 0.4);
+}
+
+.swirl-ai-time-pill:active {
+  transform: scale(0.98);
+}
+
+/* Tablet - 3 columns */
+@media (max-width: 1024px) {
+  .swirl-ai-booking-slots-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+
+  .swirl-ai-booking-slots-header {
+    font-size: 15px;
+  }
+
+  .swirl-ai-booking-slot-card {
+    padding: 14px;
+  }
+
+  .swirl-ai-slot-date {
+    font-size: 13px;
+  }
+
+  .swirl-ai-time-pill {
+    font-size: 12px;
+    padding: 7px 10px;
+  }
+}
+
+/* Mobile - 2 columns */
+@media (max-width: 768px) {
+  .swirl-ai-booking-slots-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .swirl-ai-booking-slots-header {
+    font-size: 14px;
+  }
+
+  .swirl-ai-booking-slot-card {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .swirl-ai-calendar-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .swirl-ai-slot-date {
+    font-size: 13px;
+  }
+
+  .swirl-ai-time-pill {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}
+
+.swirl-ai-media-swiper .swiper-button-prev.swiper-button-disabled,
+.swirl-ai-media-swiper .swiper-button-next.swiper-button-disabled {
+  opacity: 0;
+  cursor: not-allowed;
+}
+
+/* Media Swiper Pagination */
+.swirl-ai-media-swiper .swiper-pagination {
+  bottom: 20px !important;
+}
+
+.swirl-ai-media-swiper .swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.4);
+  opacity: 1;
+  transition: all 0.3s ease;
+}
+
+.swirl-ai-media-swiper .swiper-pagination-bullet-active {
+  width: 24px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* ===================================================
+   PRICING TABLE - FIGMA EXACT
+   =================================================== */
+
+.swirl-ai-pricing-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 15px;
+  width: 100%;
+}
+
+/* Pricing Table Wrapper */
+.swirl-ai-pricing-table-wrapper {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #716e6e;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* Header Row - Dynamic Grid */
+.swirl-ai-pricing-header-row {
+  display: grid;
+  grid-template-columns: 180px repeat(auto-fit, minmax(120px, 1fr));
+  align-items: center;
+  padding: 8px;
+  gap: 8px;
+}
+
+.swirl-ai-pricing-header-cell {
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 28px;
+  color: white;
+  padding: 8px;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.swirl-ai-pricing-header-cell:first-child {
+  text-align: left;
+}
+
+/* Pricing Body */
+.swirl-ai-pricing-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Pricing Row - Dynamic Grid */
+.swirl-ai-pricing-row {
+  display: grid;
+  grid-template-columns: 22px 158px repeat(auto-fit, minmax(120px, 1fr));
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-top: 1px dashed #a4a4a4;
+  padding: 4px 8px;
+  gap: 8px;
+  min-height: 56px;
+}
+
+.swirl-ai-pricing-row.last {
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+.swirl-ai-pricing-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  object-fit: contain;
+  filter: invert(1);
+}
+
+.swirl-ai-pricing-label {
+  font-size: 15px;
+  line-height: 25px;
+  color: white;
+  padding: 8px;
+  text-align: left;
+}
+
+.swirl-ai-pricing-value {
+  font-size: 15px;
+  line-height: 32px;
+  color: white;
+  padding: 8px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Availability Section */
+.swirl-ai-pricing-availability {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.swirl-ai-pricing-availability-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  line-height: 27px;
+  color: white;
+  font-weight: 600;
+}
+
+.swirl-ai-pricing-availability-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.swirl-ai-pricing-stock-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  filter: invert(1);
+}
+
+.swirl-ai-pricing-availability-item span {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 17px;
+  line-height: 27px;
+  color: white;
+}
+
+/* Colors Section */
+.swirl-ai-pricing-colors {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.swirl-ai-pricing-colors-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  line-height: 27px;
+  color: white;
+  font-weight: 400;
+}
+
+.swirl-ai-pricing-colors-grid {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.swirl-ai-pricing-color-swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 147px;
+}
+
+.swirl-ai-pricing-color-image {
+  width: 147px;
+  height: 101px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.swirl-ai-pricing-color-name {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  color: white;
+  text-align: center;
+}
+
+/* Agent Perks Section */
+.swirl-ai-agent-perks {
+  margin-top: 20px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  border-radius: 12px;
+}
+
+.swirl-ai-agent-perks-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 16px;
+}
+
+.swirl-ai-agent-perks-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.swirl-ai-agent-perk-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.swirl-ai-agent-perk-icon {
+  font-size: 24px;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.swirl-ai-agent-perk-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.swirl-ai-agent-perk-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.3;
+}
+
+.swirl-ai-agent-perk-description {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.4;
+}
+
+/* ===================================================
+   AI REVIEWS RESPONSE COMPONENT - FIGMA EXACT
+   =================================================== */
+
+/* Reviews Container */
+.swirl-ai-reviews-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 0;
+  margin-top: 15px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Reviews Header (star icon + Reviews text) */
+.swirl-ai-reviews-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.swirl-ai-reviews-header-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.swirl-ai-reviews-header-icon svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+.swirl-ai-reviews-header-text {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 24px;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+/* Reviews Swiper Container */
+.swirl-ai-reviews-swiper {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  position: relative;
+}
+
+.swirl-ai-reviews-swiper .swiper-wrapper {
+  display: flex;
+  align-items: stretch;
+}
+
+.swirl-ai-reviews-swiper .swiper-slide {
+  height: auto;
+  display: flex;
+  justify-content: center;
+}
+
+/* Review Card - EXACT FIGMA (338.67px × 236px) */
+.swirl-ai-review-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: 0;
+  isolation: isolate;
+}
+
+/* Quote Icon (top-left, overlapping) */
+.swirl-ai-review-quote-icon {
+  width: 34px;
+  height: 30px;
+  margin-bottom: -8px;
+  margin-left: 10px;
+  z-index: 2;
+  position: relative;
+}
+
+.swirl-ai-review-quote-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Review Content Container */
+.swirl-ai-review-content {
+  background: linear-gradient(90deg, rgba(228, 152, 152, 0.09) 0%, rgba(238, 238, 238, 0.043) 100%);
+  border-top: 1px solid #575353;
+  border-radius: 0 0 20px 20px;
+  /* box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25); */
+  padding: 18px 16px 60px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  position: relative;
+  z-index: 1;
+  margin-bottom: -16px;
+  flex: 1;
+}
+
+/* Ellipse shadow effect (optional - for exact Figma match) */
+.swirl-ai-review-content::after {
+  content: '';
+  position: absolute;
+  width: 226px;
+  height: 21px;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse, rgba(255, 255, 255, 0.1), transparent);
+  mix-blend-mode: hard-light;
+  pointer-events: none;
+}
+
+/* Review Text */
+.swirl-ai-review-text {
+  font-size: 15px;
+  line-height: 20px;
+  color: #F5F5F5;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* Review Author Section */
+.swirl-ai-review-author {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 114, 91, 0.1) 100%);
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+  margin-top: -26px;
+  border-radius: 0 0 20px 20px;
+}
+
+.swirl-ai-review-author-icon {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.swirl-ai-review-author-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.swirl-ai-review-author-name {
+  font-size: 12px;
+  line-height: 20px;
+  color: #B9B9BB;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Reviews Swiper Navigation - HIDE by default, show on container hover */
+.swirl-ai-reviews-swiper .swiper-button-prev,
+.swirl-ai-reviews-swiper .swiper-button-next {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.swirl-ai-reviews-container:hover .swiper-button-prev,
+.swirl-ai-reviews-container:hover .swiper-button-next {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.swirl-ai-reviews-swiper .swiper-button-prev:hover,
+.swirl-ai-reviews-swiper .swiper-button-next:hover {
+  background: rgba(255, 255, 255, 0.4);
+  transform: scale(1.1);
+}
+
+.swirl-ai-reviews-swiper .swiper-button-prev:after,
+.swirl-ai-reviews-swiper .swiper-button-next:after {
+  font-size: 16px;
+  font-weight: bold;
+  color: #FFFFFF;
+}
+
+.swirl-ai-reviews-swiper .swiper-button-prev.swiper-button-disabled,
+.swirl-ai-reviews-swiper .swiper-button-next.swiper-button-disabled {
+  opacity: 0;
+  cursor: not-allowed;
+}
+
+/* Reviews Swiper Pagination */
+.swirl-ai-reviews-swiper .swiper-pagination {
+  bottom: 20px !important;
+}
+
+.swirl-ai-reviews-swiper .swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.4);
+  opacity: 1;
+  transition: all 0.3s ease;
+}
+
+.swirl-ai-reviews-swiper .swiper-pagination-bullet-active {
+  width: 24px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* ===================================================
+   AI TABLE RESPONSE COMPONENT - FIGMA EXACT
+   =================================================== */
+
+/* Table Container */
+.swirl-ai-table-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 0 24px;
+  margin-top: 15px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Table Header Text */
+.swirl-ai-table-header {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 21px;
+  line-height: 36px;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+/* Table Wrapper - EXACT FIGMA (531px with background and border-radius) */
+.swirl-ai-table {
+  width: 100%;
+  max-width: 531px;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Table Header Row */
+.swirl-ai-table-header-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  min-height: 48px;
+  background: transparent;
+}
+
+/* Table Data Rows Container */
+.swirl-ai-table-body {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Table Row (Data Rows) */
+.swirl-ai-table-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  min-height: 48px;
+  background: rgba(255, 255, 255, 0.1);
+  border-top: 1px dashed #A4A4A4;
+  position: relative;
+}
+
+/* Last Row - Rounded Bottom Corners */
+.swirl-ai-table-row:last-child {
+  border-radius: 0 0 16px 16px;
+}
+
+/* Table Cell - First Column (with icon + text) */
+.swirl-ai-table-cell-first {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Table Cell - Last Column (distance) */
+.swirl-ai-table-cell-last {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+  min-width: 103px;
+  padding: 8px;
+}
+
+/* Table Icon (Images) */
+.swirl-ai-table-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.swirl-ai-table-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.swirl-ai-table-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Smaller icons for some rows */
+.swirl-ai-table-icon.small {
+  width: 28px;
+  height: 28px;
+}
+
+/* Table Cell Text */
+.swirl-ai-table-cell p {
+
+  font-size: 16px;
+  line-height: 32px;
+  color: #FFFFFF;
+  margin: 0;
+  white-space: nowrap;
+  padding: 8px;
+}
+
+/* Header Row Text - Bold 20px */
+.swirl-ai-table-header-row .swirl-ai-table-cell p {
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 32px;
+}
+
+/* Data Row Text - Regular 16px */
+.swirl-ai-table-row .swirl-ai-table-cell p {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 32px;
+}
+
+/* Vertical Separator Line */
+.swirl-ai-table::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 48px;
+  bottom: 0;
+  width: 1px;
+  background: rgba(164, 164, 164, 0.3);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+/* ===================================================
+   YOUTUBE VIDEO MODAL
+   =================================================== */
+
+.swirl-ai-video-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 100000001;
+  display: none;
+}
+
+.swirl-ai-video-modal-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+}
+
+.swirl-ai-video-modal-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 40px 120px 40px;
+  box-sizing: border-box;
+}
+
+.swirl-ai-video-modal-close {
+  position: absolute;
+  top: 28px;
+  right: 28px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  z-index: 10;
+}
+
+.swirl-ai-video-modal-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.swirl-ai-video-player-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 906px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.swirl-ai-video-swiper-container {
+  width: 100%;
+  height: 100%;
+  max-height: 518px;
+}
+
+.swirl-ai-video-swiper-container .swiper-slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.swirl-ai-yt-player-container {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  /* 16:9 aspect ratio */
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+}
+
+.swirl-ai-yt-player {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.swirl-ai-yt-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.swirl-ai-yt-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 3;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
+  padding: 40px 20px 20px 20px;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+.swirl-ai-yt-controls * {
+  pointer-events: auto;
+}
+
+.swirl-ai-yt-progress-container {
+  width: 100%;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.swirl-ai-yt-progress-bar {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.swirl-ai-yt-progress-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: #FF0000;
+  border-radius: 3px;
+  transition: width 0.1s linear;
+}
+
+.swirl-ai-yt-controls-bottom {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.swirl-ai-yt-btn-play,
+.swirl-ai-yt-btn-mute {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.swirl-ai-yt-btn-play:hover,
+.swirl-ai-yt-btn-mute:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.swirl-ai-yt-time {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Circular Std', 'Montserrat', sans-serif;
+  font-size: 14px;
+  color: white;
+  flex: 1;
+}
+
+.swirl-ai-video-nav-prev,
+.swirl-ai-video-nav-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  padding: 0;
+}
+
+.swirl-ai-video-nav-prev:hover,
+.swirl-ai-video-nav-next:hover {
+  opacity: 0.8;
+}
+
+.swirl-ai-video-nav-prev {
+  left: 20px;
+}
+
+.swirl-ai-video-nav-next {
+  right: 20px;
+}
+
+.swirl-ai-video-pagination {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  z-index: 10;
+}
+
+.swirl-ai-video-pagination-thumb {
+  width: 61px;
+  height: 61px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.swirl-ai-video-pagination-thumb:hover {
+  transform: scale(1.05);
+}
+
+.swirl-ai-video-pagination-thumb.active {
+  border-color: #888;
+}
+
+
+/* ===================================================
+   BOOKING CONFIRMATION CARD - FIGMA EXACT
+   =================================================== */
+
+.swirl-ai-booking-confirmation {
+  width: 100%;
+  max-width: 600px;
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+}
+
+.swirl-ai-booking-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  width: 100%;
+}
+
+.swirl-ai-booking-heading {
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 40px;
+  color: #C8C8C8;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.swirl-ai-booking-schedule {
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 24px;
+  color: #C8C8C8;
+  margin: 0;
+}
+
+.swirl-ai-booking-location {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.swirl-ai-booking-location-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.swirl-ai-booking-location-text {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20px;
+  color: white;
+}
+
+/* Mobile responsive for video modal */
+@media (max-width: 768px) {
+  .swirl-ai-video-modal-container {
+    padding: 60px 20px 100px 20px;
+  }
+
+  .swirl-ai-video-modal-close {
+    top: 16px;
+    right: 16px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .swirl-ai-video-nav-prev,
+  .swirl-ai-video-nav-next {
+    display: none;
+  }
+
+  .swirl-ai-video-pagination {
+    bottom: 20px;
+    gap: 8px;
+  }
+
+  .swirl-ai-video-pagination-thumb {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* ===================================================
+   IMAGE MODAL
+   =================================================== */
+
+.swirl-ai-image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 100000001;
+  display: none;
+}
+
+.swirl-ai-image-modal-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+}
+
+.swirl-ai-image-modal-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 40px 120px 40px;
+  box-sizing: border-box;
+}
+
+.swirl-ai-image-modal-close {
+  position: absolute;
+  top: 28px;
+  right: 28px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  z-index: 10;
+}
+
+.swirl-ai-image-modal-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.swirl-ai-image-viewer-wrapper {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.swirl-ai-image-swiper-container {
+  width: 100%;
+  height: 100%;
+  max-height: 80vh;
+}
+
+.swirl-ai-image-swiper-container .swiper-slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.swirl-ai-image-slide-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.swirl-ai-modal-image {
+  max-width: 100%;
+  max-height: calc(80vh - 60px);
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+.swirl-ai-image-caption {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  max-width: 600px;
+  line-height: 1.5;
+}
+
+.swirl-ai-image-nav-prev,
+.swirl-ai-image-nav-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  padding: 0;
+}
+
+.swirl-ai-image-nav-prev:hover,
+.swirl-ai-image-nav-next:hover {
+  opacity: 0.8;
+}
+
+.swirl-ai-image-nav-prev {
+  left: 20px;
+}
+
+.swirl-ai-image-nav-next {
+  right: 20px;
+}
+
+.swirl-ai-image-pagination {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  z-index: 10;
+}
+
+.swirl-ai-image-thumb {
+  width: 61px;
+  height: 61px;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.swirl-ai-image-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.swirl-ai-image-thumb:hover {
+  transform: scale(1.05);
+}
+
+.swirl-ai-image-thumb.active {
+  border-color: #888;
+}
+
+/* Mobile responsive for image modal */
+@media (max-width: 768px) {
+  .swirl-ai-image-modal-container {
+    padding: 60px 20px 100px 20px;
+  }
+
+  .swirl-ai-image-modal-close {
+    top: 16px;
+    right: 16px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .swirl-ai-image-nav-prev,
+  .swirl-ai-image-nav-next {
+    display: none;
+  }
+
+  .swirl-ai-modal-image {
+    max-height: calc(80vh - 40px);
+  }
+
+  .swirl-ai-image-caption {
+    font-size: 14px;
+    padding: 0 10px;
+  }
+
+  .swirl-ai-image-pagination {
+    bottom: 20px;
+    gap: 8px;
+  }
+
+  .swirl-ai-image-thumb {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* ===================================================
+   MOBILE RESPONSIVE - MODAL
+   =================================================== */
+
+@media (max-width: 480px) {
+  .swirl-ai-voice-header {
+    grid-template-columns: 40px 1fr 40px;
+    gap: 15px;
+    padding: 10px 15px 5px;
+  }
+
+  .swirl-ai-chat-messages {
+    gap: 5px;
+  }
+
+  .swirl-ai-voice-content {
+    padding: 6px 15px 15px;
+  }
+
+  .swirl-ai-voice-title {
+    font-size: 24px;
+    line-height: 24px;
+  }
+
+  .swirl-ai-voice-menu-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .swirl-ai-voice-close-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .swirl-ai-voice-close-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Voice Icon */
+  .swirl-ai-voice-icon-gif {
+    width: 60px;
+    height: 60px;
+  }
+
+  .swirl-ai-response-message {
+    font-size: 14px;
+    line-height: 21px;
+  }
+
+  /* User Message - 70% width on mobile */
+  .swirl-ai-user-message {
+    max-width: 80%;
+    font-size: 14px;
+    line-height: 20px;
+    padding: 10px 12px;
+    margin-top: 28px;
+  }
+
+  /* User Prompt Text */
+  .swirl-ai-user-prompt-text {
+    width: 90%;
+    max-width: 90%;
+    height: auto;
+    min-height: auto;
+    font-size: 15px;
+    line-height: 20px;
+    margin-bottom: 16px;
+    padding: 10px 12px;
+  }
+
+  /* Footer Controls */
+  .swirl-ai-voice-footer {
+    padding: 0 15px 15px;
+    gap: 10px;
+  }
+
+  .swirl-ai-voice-message-btn {
+    width: 48px;
+    height: 48px;
+  }
+
+  .swirl-ai-voice-input-container {
+    width: 100%;
+    max-width: 280px;
+    padding: 4px 4px 4px 16px;
+    gap: 15px;
+  }
+
+  .swirl-ai-voice-soundwave-bars {
+    gap: 2px;
+  }
+
+  .swirl-ai-voice-bar {
+    width: 2.5px;
+    height: 8px;
+  }
+
+  .swirl-ai-voice-mic-btn {
+    width: 48px;
+    height: 48px;
+  }
+
+  .swirl-ai-media-header {
+    font-size: 16px;
+  }
+
+  .swirl-ai-media-header svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .swirl-ai-comparison-card-body {
+    padding: 16px 12px 12px;
+  }
+
+  .swirl-ai-location-name {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 18px;
+  }
+
+  .swirl-ai-location-content {
+    gap: 10px;
+  }
+
+  .swirl-ai-booking-heading {
+    font-size: 20px;
+  }
+
+  .swirl-ai-booking-schedule {
+    font-size: 14px;
+  }
+
+  .swirl-ai-booking-location-text {
+    font-size: 14px;
+  }
+
+  .swirl-ai-voice-mic-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* AI Response Cards - Mobile */
+  .swirl-ai-response-container {
+    padding: 0 12px;
+    margin-top: 24px;
+    gap: 15px;
+  }
+
+  .swirl-ai-response-header {
+    font-size: 18px;
+    line-height: 32px;
+  }
+
+  /* Swiper Mobile Adjustments */
+  .swirl-ai-cards-swiper {
+    padding: 0 20px 60px;
+  }
+
+  .swirl-ai-cards-swiper .swiper-button-prev,
+  .swirl-ai-cards-swiper .swiper-button-next {
+    width: 36px;
+    height: 36px;
+  }
+
+  .swirl-ai-cards-swiper .swiper-button-prev:after,
+  .swirl-ai-cards-swiper .swiper-button-next:after {
+    font-size: 14px;
+  }
+
+  .swirl-ai-vehicle-card {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .swirl-ai-card-features {
+    padding: 6px 12px;
+    gap: 3px;
+  }
+
+  .swirl-ai-feature-item {
+    gap: 3px;
+  }
+
+  .swirl-ai-check-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .swirl-ai-feature-item p {
+    font-size: 13px;
+    line-height: 14px;
+  }
+
+  .swirl-ai-media-header-text {
+    font-size: 20px;
+    line-height: 20px;
+  }
+
+  .swirl-ai-media-duration {
+    left: 50px;
+    bottom: 12px;
+    font-size: 9px;
+  }
+
+  .swirl-ai-media-expand {
+    top: 16px;
+    right: 16px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .swirl-ai-media-features {
+    padding: 3px 10px;
+    gap: 8px;
+    font-size: 12px;
+  }
+
+  .swirl-ai-media-feature-item p {
+    font-size: 14px;
+    line-height: 14px;
+  }
+
+  .swirl-ai-media-check-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .swirl-ai-media-swiper .swiper-button-prev,
+  .swirl-ai-media-swiper .swiper-button-next {
+    width: 32px;
+    height: 32px;
+  }
+
+  .swirl-ai-media-swiper .swiper-button-prev:after,
+  .swirl-ai-media-swiper .swiper-button-next:after {
+    font-size: 12px;
+  }
+
+  .swirl-ai-reviews-header-text {
+    font-size: 16px;
+  }
+
+  .swirl-ai-reviews-header-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .swirl-ai-review-quote-icon {
+    width: 30px;
+    height: 26px;
+  }
+
+  .swirl-ai-review-content {
+    padding: 16px 14px 60px 14px;
+    gap: 14px;
+  }
+
+  .swirl-ai-review-text {
+    font-size: 15px;
+    line-height: 19px;
+  }
+
+  .swirl-ai-review-author {
+    padding: 7px 10px;
+    gap: 7px;
+  }
+
+  .swirl-ai-review-author-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .swirl-ai-review-author-name {
+    font-size: 11px;
+    line-height: 18px;
+  }
+
+  .swirl-ai-reviews-swiper .swiper-button-prev,
+  .swirl-ai-reviews-swiper .swiper-button-next {
+    width: 32px;
+    height: 32px;
+  }
+
+  .swirl-ai-reviews-swiper .swiper-button-prev:after,
+  .swirl-ai-reviews-swiper .swiper-button-next:after {
+    font-size: 12px;
+  }
+
+  /* AI Table Response - Mobile */
+  .swirl-ai-table-container {
+    padding: 0 12px;
+    margin-top: 24px;
+    gap: 14px;
+  }
+
+  .swirl-ai-table-header {
+    font-size: 18px;
+    line-height: 32px;
+  }
+
+  .swirl-ai-table {
+    max-width: 100%;
+    border-radius: 12px;
+  }
+
+  .swirl-ai-table-header-row {
+    padding: 4px 10px;
+    min-height: 44px;
+    gap: 4px;
+  }
+
+  .swirl-ai-table-row {
+    gap: 10px;
+    padding: 8px 10px;
+    min-height: 44px;
+  }
+
+  .swirl-ai-table-row:last-child {
+    border-radius: 0 0 12px 12px;
+  }
+
+  .swirl-ai-table-cell-first {
+    gap: 0;
+  }
+
+  .swirl-ai-table-cell-last {
+    min-width: 90px;
+    padding: 6px;
+  }
+
+  .swirl-ai-table-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .swirl-ai-table-icon.small {
+    width: 24px;
+    height: 24px;
+  }
+
+  .swirl-ai-table-cell p {
+    font-size: 14px;
+    line-height: 28px;
+    padding: 6px;
+  }
+
+  .swirl-ai-table-header-row .swirl-ai-table-cell p {
+    font-size: 18px;
+    line-height: 28px;
+  }
+
+  .swirl-ai-table-row .swirl-ai-table-cell p {
+    font-size: 14px;
+    line-height: 28px;
+  }
+
+  .swirl-ai-table::after {
+    top: 44px;
+  }
+}
+
+/* ===================================================
+   COMPARISON CARDS CAROUSEL - FIGMA EXACT
+   =================================================== */
+
+.swirl-ai-comparison-carousel-container {
+  width: 100%;
+  margin-top: 15px;
+  overflow: visible;
+}
+
+.swirl-ai-comparison-swiper {
+  width: 100%;
+  overflow: visible;
+  padding-bottom: 8px;
+}
+
+.swirl-ai-comparison-swiper .swiper-wrapper {
+  display: flex;
+}
+
+.swirl-ai-comparison-swiper .swiper-slide {
+  width: auto;
+  height: auto;
+}
+
+/* Comparison Card */
+.swirl-ai-comparison-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Card Image Section */
+.swirl-ai-comparison-card-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.swirl-ai-comparison-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  background: #ccc;
+}
+
+/* Card Header */
+.swirl-ai-comparison-card-header {
+  padding: 10px 0;
+  position: relative;
+}
+
+.swirl-ai-comparison-card-title {
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 20px;
+  color: white;
+  margin: 0 0 10px 0;
+  padding: 0 15px;
+}
+
+/* Horizontal divider line */
+.swirl-ai-comparison-divider {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin: 8px 0;
+}
+
+/* "Best" Badge - now inside header on right */
+.swirl-ai-comparison-badge {
+  position: absolute;
+  top: 41px;
+  right: calc(50% - 100px);
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 0 0 10px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  width: 200px;
+}
+
+.swirl-ai-comparison-badge span {
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  color: white;
+  white-space: nowrap;
+}
+
+/* Card Body */
+.swirl-ai-comparison-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+}
+
+/* Comparison Section */
+.swirl-ai-comparison-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.swirl-ai-comparison-section.multi-line {
+  gap: 8px;
+}
+
+/* Section Header (Icon + Title) */
+.swirl-ai-comparison-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.swirl-ai-comparison-section-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  object-fit: contain;
+  filter: invert(1);
+}
+
+.swirl-ai-comparison-section-title {
+
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 17px;
+  color: white;
+  white-space: nowrap;
+}
+
+/* Section Content (Checkmark + Text) */
+.swirl-ai-comparison-section-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 2px;
+  padding-left: 28px;
+}
+
+.swirl-ai-comparison-checkmark {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-top: 0;
+}
+
+.swirl-ai-comparison-section-text {
+
+  font-weight: 400;
+  font-size: 15px;
+  line-height: normal;
+  color: #ededed;
+  flex: 1;
+  word-wrap: break-word;
+}
+
+/* Section List (for Key Strengths and Best For) */
+.swirl-ai-comparison-section-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ===================================================
+   LOCATIONS LIST DISPLAY (Before Booking)
+   =================================================== */
+
+.swirl-ai-locations-container {
+  width: 100%;
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.swirl-ai-locations-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  width: 100%;
+}
+
+.swirl-ai-location-card {
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.3) 0%,
+      rgba(219, 219, 219, 0.3) 25%,
+      rgba(183, 182, 182, 0.3) 50%,
+      rgba(148, 146, 146, 0.3) 75%,
+      rgba(112, 110, 110, 0.3) 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 14px 12px;
+  overflow: hidden;
+  height: auto;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.swirl-ai-location-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.35) 0%,
+      rgba(219, 219, 219, 0.35) 25%,
+      rgba(183, 182, 182, 0.35) 50%,
+      rgba(148, 146, 146, 0.35) 75%,
+      rgba(112, 110, 110, 0.35) 100%);
+}
+
+.swirl-ai-location-image {
+  width: 198px;
+  height: 100%;
+  flex-shrink: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(270deg);
+}
+
+.swirl-ai-location-image img {
+  width: 130px;
+  height: 93px;
+  object-fit: cover;
+  object-position: center;
+}
+
+.swirl-ai-location-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  flex: 1;
+  padding: 0;
+  height: 100%;
+}
+
+.swirl-ai-location-name {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  line-height: 18px;
+  color: white;
+  margin: 0;
+}
+
+.swirl-ai-location-address-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.swirl-ai-location-pin-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.swirl-ai-location-address {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
+  line-height: 15px;
+  color: white;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Mobile: 1 column for screens below 768px */
+@media (max-width: 767px) {
+  .swirl-ai-locations-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .swirl-ai-location-card {
+    height: auto;
+    min-height: auto;
+    padding: 10px 8px;
+  }
+}
+
+/* ============================================
+   TEST MODE BANNER STYLES
+   ============================================ */
+.swirl-ai-test-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.swirl-ai-test-label {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: white;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 6px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.swirl-ai-test-input {
+  flex: 1;
+  font-family: 'Montserrat', monospace;
+  font-size: 11px;
+  color: white;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  padding: 4px 8px;
+  outline: none;
+  min-width: 0;
+}
+
+.swirl-ai-test-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.swirl-ai-test-input:focus {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* ===================================================
+   TEXT INPUT CONTAINER (Text Mode)
+   =================================================== */
+
+.swirl-ai-text-input-container {
+  width: 317px;
+  max-width: 317px;
+  height: 60px;
+  display: none;
+  /* Hidden by default, shown in text mode */
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 0 0 15px;
+  background: #35393d;
+  border: 1px solid #a4a4a4;
+  border-radius: 56px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.swirl-ai-text-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-family: 'Circular Std', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 16px;
+  padding: 0;
+  min-width: 0;
+  height: 100%;
+}
+
+.swirl-ai-text-input::placeholder {
+  color: #8b8b8e;
+  font-weight: 400;
+}
+
+.swirl-ai-text-send-btn {
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  border-radius: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  padding: 8px 15px 8px 0;
+}
+
+/* .swirl-ai-text-send-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.05);
+}
+
+.swirl-ai-text-send-btn:active {
+  transform: scale(0.95);
+} */
+
+.swirl-ai-text-send-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.swirl-ai-voice-toggle-btn {
+  width: 52px;
+  height: 52px;
+  background: linear-gradient(180deg, #3A4A55 0%, #121D25 100%);
+  border: none;
+  border-radius: 50%;
+  display: none;
+  /* Hidden by default, shown only in text mode */
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.swirl-ai-voice-toggle-btn img {
+  width: 100%;
+  height: 100%;
+  -webkit-box-shadow: 0px 0px 10px 0px #ffffff;
+  box-shadow: 0px 0px 10px 0px #ffffff;
+  border-radius: 50%;
+}
+
+.swirl-ai-voice-toggle-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.swirl-ai-voice-toggle-btn:active {
+  transform: scale(0.95);
+}
+
+.swirl-ai-voice-toggle-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Mobile Responsive */
+@media screen and (max-width: 768px) {
+  .swirl-ai-text-input-container {
+    width: 100%;
+    max-width: 280px;
+    gap: 4px;
+  }
+
+  .swirl-ai-text-input {
+    font-size: 12px;
+  }
+
+  .swirl-ai-text-send-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .swirl-ai-voice-toggle-btn {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* ===================================================
+   WARRANTY CARD STYLES - NEW UI DESIGN
+   =================================================== */
+
+.swirl-ai-warranty-card {
+  width: 100%;
+  margin-top: 15px;
+  background: rgba(71, 71, 71, 0.6);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.swirl-ai-warranty-section {
+  margin-bottom: 16px;
+}
+
+.swirl-ai-warranty-section:last-of-type {
+  margin-bottom: 0;
+}
+
+.swirl-ai-warranty-section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.swirl-ai-warranty-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
   opacity: 0.9;
 }
 
-.purchase-link-container {
+.swirl-ai-warranty-label {
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: 0.3px;
+}
+
+.swirl-ai-warranty-values {
+  display: flex;
+  gap: 24px;
+  padding-left: 30px;
+}
+
+.swirl-ai-warranty-value-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.swirl-ai-warranty-value-number {
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.swirl-ai-warranty-value-label {
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.65);
+  letter-spacing: 0.2px;
+}
+
+.swirl-ai-warranty-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
   margin: 20px 0;
-  padding-left: 48px;
+  opacity: 0.7;
+}
+
+.swirl-ai-warranty-footer {
+  margin-top: 16px;
+  padding: 14px 16px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.75);
+  text-align: left;
+  letter-spacing: 0.2px;
+}
+
+/* ===================================================
+   EMI CALCULATOR COMPONENT
+   =================================================== */
+
+.swirl-ai-emi-calculator {
+  display: flex;
+  width: 339px;
+  flex-direction: column;
+  align-items: stretch;
+  flex-shrink: 0;
+  margin-top: 15px;
+  margin-right: auto;
+  border-radius: 12px;
+  border: 1.5px solid rgba(255, 255, 255, 0.20);
+  background: radial-gradient(147.56% 118.19% at 7.79% 5.87%, rgba(156, 173, 188, 0.35) 0%, rgba(129, 131, 133, 0.12) 100%);
+  box-shadow: 0px 4px 12px 0px rgba(206, 206, 206, 0.34);
+  overflow: hidden;
+}
+
+.swirl-ai-emi-header {
+  padding: 16px 16px 0 16px;
+}
+
+.swirl-ai-emi-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  font-family: 'Montserrat', sans-serif;
+}
+
+.swirl-ai-emi-monthly {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  gap: 4px;
+}
+
+.swirl-ai-emi-monthly-amount {
+  font-size: 42px;
+  font-weight: 700;
+  background: linear-gradient(180deg, #5B9DFF 0%, #A8D4FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-family: 'Montserrat', sans-serif;
+  transition: opacity 0.2s ease;
+}
+
+.swirl-ai-emi-monthly-amount.loading {
+  opacity: 0.5;
+}
+
+.swirl-ai-emi-monthly-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.swirl-ai-emi-sliders {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px 16px 20px 16px;
+}
+
+.swirl-ai-emi-slider-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.swirl-ai-emi-slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.swirl-ai-emi-slider-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: 'Montserrat', sans-serif;
+}
+
+.swirl-ai-emi-slider-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: #FFFFFF;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.swirl-ai-emi-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  touch-action: pan-x;
+  background: linear-gradient(
+    to right,
+    #5B9DFF 0%,
+    #5B9DFF var(--slider-percent, 50%),
+    rgba(255, 255, 255, 0.2) var(--slider-percent, 50%),
+    rgba(255, 255, 255, 0.2) 100%
+  );
+  outline: none;
+  cursor: pointer;
+}
+
+.swirl-ai-emi-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  cursor: pointer;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+  border: none;
+  transition: transform 0.1s ease;
+}
+
+.swirl-ai-emi-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.swirl-ai-emi-slider::-webkit-slider-thumb:active {
+  transform: scale(0.95);
+}
+
+.swirl-ai-emi-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  cursor: pointer;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+  border: none;
+}
+
+.swirl-ai-emi-slider-range {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2px;
+}
+
+.swirl-ai-emi-slider-range span {
+  font-size: 10px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .swirl-ai-emi-calculator {
+    width: 100%;
+    max-width: 339px;
+  }
+
+  .swirl-ai-emi-monthly-amount {
+    font-size: 36px;
+  }
+}
+
+/* Desktop styles */
+@media (min-width: 769px) {
+  .swirl-ai-emi-calculator {
+    min-width: 380px;
+    max-width: 420px;
+  }
+
+  .swirl-ai-emi-monthly-amount {
+    font-size: 48px;
+  }
+}
+
+/* ===================================================
+   PROMOTIONAL OFFER CARD
+   =================================================== */
+
+.swirl-ai-offer-card {
+  display: flex;
+  width: 339px;
+  padding: 16px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  margin-top: 15px;
+  margin-right: auto;
+  border-radius: 12px;
+  border: 1.5px solid rgba(217, 217, 217, 0.3);
+  background: radial-gradient(147.56% 118.19% at 7.79% 5.87%, rgba(156, 173, 188, 0.52) 0%, rgba(129, 131, 133, 0.05) 100%);
+  box-shadow: 0px 4px 12px 0px rgba(206, 206, 206, 0.34);
+  position: relative;
+  overflow: hidden;
+}
+
+.swirl-ai-offer-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, rgba(117, 159, 249, 1) 0%, rgba(226, 242, 255, 1) 100%);
+}
+
+.swirl-ai-offer-card-tag {
+  display: inline-flex;
+  padding: 6px 12px;
+  align-items: center;
+  border-radius: 6px;
+  background: rgba(109, 114, 118, 0.6);
+  color: #FFFFFF;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.swirl-ai-offer-card-text {
+  color: #FFFFFF;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Mobile responsive */
+@media screen and (max-width: 768px) {
+  .swirl-ai-offer-card {
+    width: 286px;
+  }
+
+  .swirl-ai-offer-card-text {
+    font-size: 14px;
+  }
+}
+
+/* ===================================================
+   NEXT STEPS STYLES
+   =================================================== */
+
+.swirl-ai-next-steps-container {
+  width: 100%;
+  margin-top: 15px;
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.15) 0%,
+      rgba(200, 200, 200, 0.1) 100%);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.swirl-ai-next-steps-header {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.swirl-ai-next-steps-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+}
+
+.swirl-ai-next-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.swirl-ai-next-step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.swirl-ai-next-step-number {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(34, 197, 94, 0.2);
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 600;
+  color: #22c55e;
+  flex-shrink: 0;
+}
+
+.swirl-ai-next-step-content {
+  flex: 1;
+  padding-top: 4px;
+}
+
+.swirl-ai-next-step-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  margin: 0 0 4px 0;
+}
+
+.swirl-ai-next-step-desc {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ===================================================
+   PREDICTIVE QUESTIONS STYLES
+   =================================================== */
+
+.swirl-ai-predictive-container {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 0;
+}
+
+.swirl-ai-predictive-label {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 10px;
+}
+
+.swirl-ai-predictive-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.swirl-ai-predictive-chip {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  font-size: 14px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.swirl-ai-predictive-chip:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.swirl-ai-predictive-chip:active {
+  transform: translateY(0);
+}
+
+/* ===================================================
+   COLOR GALLERY STYLES
+   =================================================== */
+
+.swirl-ai-color-gallery-container {
+  width: 100%;
+  margin-top: 15px;
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.15) 0%,
+      rgba(200, 200, 200, 0.1) 100%);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.swirl-ai-color-gallery-header {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.swirl-ai-color-gallery-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+}
+
+.swirl-ai-color-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.swirl-ai-color-card {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.swirl-ai-color-card:hover {
+  transform: translateY(-2px);
+}
+
+.swirl-ai-color-image {
+  width: 100%;
+  aspect-ratio: 16/10;
+  overflow: hidden;
+}
+
+.swirl-ai-color-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.swirl-ai-color-name {
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  text-align: center;
+}
+
+/* Color swatch image support in pricing table */
+.swirl-ai-pricing-color-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+/* ================================================= */
+/* TRIM COMPARISON STYLES */
+/* ================================================= */
+
+.swirl-ai-trim-comparison-container {
+  background: transparent;
+  padding: 0;
+  margin: 16px 0;
+  width: 100%;
+}
+
+.swirl-ai-trim-heading {
+  color: white;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  padding: 0 8px;
+}
+
+/* Grid mode for 2 trims */
+.swirl-ai-trim-cards-wrapper {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+/* Carousel mode for 3+ trims */
+.swirl-ai-trim-swiper-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.swirl-ai-trim-swiper {
+  width: 100%;
+  overflow: hidden;
+}
+
+.swirl-ai-trim-swiper .swiper-wrapper {
+  display: flex;
+}
+
+.swirl-ai-trim-swiper .swiper-slide {
+  width: auto;
+  height: auto;
+}
+
+/* Trim card styles */
+.swirl-ai-trim-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 280px;
+}
+
+.swirl-ai-trim-card-header {
+  margin-bottom: 14px;
+}
+
+.swirl-ai-trim-card-title {
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+}
+
+.swirl-ai-trim-card-subtitle {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  font-weight: 400;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.swirl-ai-trim-card-features {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.swirl-ai-trim-feature {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.swirl-ai-trim-checkmark {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.swirl-ai-trim-feature-text {
+  color: white;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+/* Navigation buttons for carousel */
+.swirl-ai-trim-nav-prev,
+.swirl-ai-trim-nav-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.3s ease, transform 0.2s ease;
+  opacity: 0.8;
+}
+
+.swirl-ai-trim-nav-prev:hover,
+.swirl-ai-trim-nav-next:hover {
+  opacity: 1;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.swirl-ai-trim-nav-prev {
+  left: -10px;
+}
+
+.swirl-ai-trim-nav-next {
+  right: -10px;
+}
+
+.swirl-ai-trim-nav-prev.swiper-button-disabled,
+.swirl-ai-trim-nav-next.swiper-button-disabled {
+  display: none !important;
+}
+
+.swirl-ai-trim-nav-prev svg,
+.swirl-ai-trim-nav-next svg {
+  display: block;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Mobile Responsive for new components */
+@media screen and (max-width: 768px) {
+  .swirl-ai-warranty-card,
+  .swirl-ai-finance-container,
+  .swirl-ai-next-steps-container,
+  .swirl-ai-color-gallery-container,
+  .swirl-ai-trim-comparison-container {
+    padding: 16px;
+  }
+
+  .swirl-ai-trim-cards-wrapper {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .swirl-ai-trim-heading {
+    font-size: 14px;
+    padding: 0;
+  }
+
+  .swirl-ai-trim-card {
+    min-width: 260px;
+  }
+
+  .swirl-ai-trim-card-title {
+    font-size: 16px;
+  }
+
+  .swirl-ai-trim-card-subtitle {
+    font-size: 12px;
+  }
+
+  .swirl-ai-trim-feature-text {
+    font-size: 13px;
+  }
+
+  .swirl-ai-trim-nav-prev,
+  .swirl-ai-trim-nav-next {
+    display: none !important;
+  }
+
+  .swirl-ai-warranty-label {
+    font-size: 14px;
+  }
+
+  .swirl-ai-warranty-value-number {
+    font-size: 18px;
+  }
+
+  .swirl-ai-warranty-value-label {
+    font-size: 12px;
+  }
+
+  .swirl-ai-warranty-values {
+    gap: 18px;
+    padding-left: 28px;
+  }
+
+  .swirl-ai-finance-title,
+  .swirl-ai-next-steps-title,
+  .swirl-ai-color-gallery-title {
+    font-size: 16px;
+  }
+
+  .swirl-ai-finance-amount {
+    font-size: 20px;
+  }
+
+  .swirl-ai-color-gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .swirl-ai-predictive-chip {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}
+
+/* Car Configurator - Figma Design Match */
+.swirl-ai-configurator-container {
+  width: 100%;
+  margin: 12px 0;
+  animation: swirlFadeIn 0.3s ease-out;
+}
+
+.swirl-ai-configurator {
+  background: #1e1e23;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.swirl-ai-configurator-image {
+  position: relative;
+  width: 100%;
+  height: 340px;
+  background: linear-gradient(180deg, #0d0d12 0%, #1e1e23 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0;
+}
+
+.swirl-ai-configurator-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: opacity 0.2s ease-out;
+}
+
+.swirl-ai-config-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.swirl-ai-config-placeholder span {
+  font-size: 48px;
+}
+
+.swirl-ai-config-placeholder p {
+  font-size: 16px;
+  margin: 0;
+}
+
+.swirl-ai-configurator-options {
+  padding: 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* Category Tabs Row (Color, wheel, Interior, Alloys) */
+.swirl-ai-config-tabs-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.swirl-ai-config-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 55px;
+}
+
+.swirl-ai-config-tab:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.swirl-ai-config-tab.active {
+  background: rgba(117, 159, 249, 0.15);
+  border-color: #759ff9;
+}
+
+.swirl-ai-config-tab-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  filter: brightness(0.8);
+  transition: filter 0.2s ease;
+}
+
+.swirl-ai-config-tab.active .swirl-ai-config-tab-icon {
+  filter: brightness(1);
+}
+
+.swirl-ai-config-tab-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: capitalize;
+}
+
+.swirl-ai-config-tab.active .swirl-ai-config-tab-label {
+  color: #fff;
+}
+
+/* Color Swatches Row - Figma card style */
+.swirl-ai-config-swatches-row {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.swirl-ai-config-swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.44);
+  border: none;
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 88px;
+  height: 82px;
+  overflow: hidden;
+  box-shadow: 0px 2px 8px rgba(206, 206, 206, 0.25);
+}
+
+.swirl-ai-config-swatch:hover {
+  transform: scale(1.02);
+  box-shadow: 0px 6px 16px rgba(206, 206, 206, 0.45);
+}
+
+.swirl-ai-config-swatch.active {
+  border-bottom-color: #759ff9;
+  box-shadow: 0px 4px 12px rgba(117, 159, 249, 0.4);
+}
+
+/* Swatch preview - shows car/interior photo */
+.swirl-ai-config-swatch-preview {
+  width: 100%;
+  height: 56px;
+  border-radius: 0;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.swirl-ai-config-swatch-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Fallback when no image - solid color block */
+.swirl-ai-config-swatch-fallback {
+  width: 100%;
+  height: 100%;
+}
+
+/* Fallback icon for interior when no photo */
+.swirl-ai-config-swatch-icon-fallback {
+  width: 38px !important;
+  height: 38px !important;
+  object-fit: contain !important;
+  filter: brightness(0.9);
+}
+
+.swirl-ai-config-swatch-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  text-align: left;
+  width: 100%;
+  padding: 5px 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 13px;
+}
+
+.swirl-ai-config-swatch.active .swirl-ai-config-swatch-label {
+  color: #fff;
+}
+
+/* Configurator responsive */
+@media screen and (max-width: 768px) {
+  .swirl-ai-configurator {
+    border-radius: 12px;
+  }
+
+  .swirl-ai-configurator-image {
+    height: 260px;
+    padding: 0;
+  }
+
+  .swirl-ai-configurator-options {
+    padding: 8px 10px;
+    gap: 10px;
+  }
+
+  .swirl-ai-config-tabs-row {
+    gap: 4px;
+  }
+
+  .swirl-ai-config-tab {
+    padding: 5px 10px;
+    min-width: 50px;
+    border-radius: 8px;
+  }
+
+  .swirl-ai-config-tab-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .swirl-ai-config-tab-label {
+    font-size: 9px;
+  }
+
+  .swirl-ai-config-swatches-row {
+    gap: 4px;
+  }
+
+  .swirl-ai-config-swatch {
+    width: 74px;
+    height: 68px;
+    padding: 0;
+  }
+
+  .swirl-ai-config-swatch-preview {
+    height: 44px;
+  }
+
+  .swirl-ai-config-swatch-icon-fallback {
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  .swirl-ai-config-swatch-label {
+    font-size: 9px;
+    padding: 4px 5px;
+  }
 }
