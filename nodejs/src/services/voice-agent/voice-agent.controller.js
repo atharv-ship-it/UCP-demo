@@ -564,6 +564,7 @@ export const executeTools = async (req, res) => {
       const allowedTools = [
         'detect_model_intent',
         'show_products',
+        'show_journey_media',
         'search_local_knowledge',
         'search_vehicle_knowledge',
         'search_vehicle_images',
@@ -731,6 +732,101 @@ export const executeTools = async (req, res) => {
       }
     }
 
+    // Handle show_journey_media — return curated videos or reviews for the current journey stage
+    if (tool_name === 'show_journey_media') {
+      const { stage, type } = tool_args || {}
+
+      const JOURNEY_MEDIA = {
+        awareness: {
+          videos: [
+            { title: 'Lennox Central Air Conditioner - What You Should Know', url: 'https://www.youtube.com/watch?v=IV275LGcN1o', videoId: 'IV275LGcN1o' },
+            { title: 'Lennox Two-Stage Air Conditioning Technology', url: 'https://www.youtube.com/watch?v=mvKssP2gz1g', videoId: 'mvKssP2gz1g' },
+            { title: 'Developing a Professional Technician', url: 'https://www.youtube.com/watch?v=OK-SgQB-h9w', videoId: 'OK-SgQB-h9w' }
+          ],
+          reviews: [
+            { text: 'Lennox has the highest efficiency ratings of any major HVAC company, which means higher long-term energy savings for you. Many units have silent operation, and the company offers a great selection of AC types, including split systems and ductless units.', source: "Today's Homeowner - Lennox Air Conditioner Review" },
+            { text: 'Lennox is an outstanding option if you\'re installing a new AC in your home. It\'s one of the most highly recommended HVAC brands due to average pricing and well-above-average efficiency ratings, including up to 28.0 SEER/25.8 SEER2.', source: "Today's Homeowner - Lennox Air Conditioner Review" },
+            { text: 'Many Lennox models qualify for Energy Star certification, with strong durability, reliability, advanced features like smart home integration and variable-speed compressors, plus extended warranties on high-end models.', source: 'The Furnace Outlet - Is Lennox a Good AC Brand?' }
+          ]
+        },
+        consideration: {
+          videos: [
+            { title: 'Know before you buy! Lennox Air Conditioning System Review', url: 'https://www.youtube.com/watch?v=S4jcOubV3Vw', videoId: 'S4jcOubV3Vw' },
+            { title: 'Lennox AC Reviews: Your Guide to the Best Options', url: 'https://www.youtube.com/watch?v=oNJ960Lp5vU', videoId: 'oNJ960Lp5vU' },
+            { title: 'Carrier Vs Lennox AC: Which Is More Efficient & Reliable?', url: 'https://www.youtube.com/watch?v=WXoUJQEhGEA', videoId: 'WXoUJQEhGEA' }
+          ],
+          reviews: [
+            { text: 'Lennox air conditioner reviews are largely positive and often mention durability and reliability. Lennox is known for producing units that operate quietly, which is especially important during nighttime, though the higher-quality build usually comes with a higher initial cost.', source: 'Harp Home Services - Are Lennox HVAC Systems Worth It?' },
+            { text: 'I purchased the Merit Series ML17XP1 Heat Pump April 19th 2024. Cost me $9k installed. The outside unit shakes badly, but the cooling power with great efficiency is excellent. Lennox manufactures the most efficient air conditioners.', source: "YouTube review comment on 'Know before you buy! Lennox Air Conditioning System Review'" },
+            { text: 'Lennox AC units are on the more expensive side, but long-term energy savings and reliability justify the cost for many homeowners.', source: 'The Furnace Outlet - Is Lennox a Good AC Brand?' }
+          ]
+        },
+        high_end_comfort: {
+          videos: [
+            { title: 'Lennox Variable Speed Air Conditioner Review – XP25', url: 'https://www.youtube.com/watch?v=uz9nCexIagI', videoId: 'uz9nCexIagI' },
+            { title: 'Lennox AC Reviews: Your Guide to the Best Options', url: 'https://www.youtube.com/watch?v=oNJ960Lp5vU', videoId: 'oNJ960Lp5vU' },
+            { title: 'Lennox Two-Stage Air Conditioning Technology', url: 'https://www.youtube.com/watch?v=mvKssP2gz1g', videoId: 'mvKssP2gz1g' }
+          ],
+          reviews: [
+            { text: "If you're a 'Rolls-Royce' buyer who values quiet, precision comfort, and doesn't mind the premium cost — Lennox is a great choice. Set 72°, stay 72°. The units are whisper-quiet, even at 118°, and the build quality still looks great after 6 Phoenix summers.", source: 'Fire & Air AZ - Lennox Variable Speed Air Conditioner Review (After Using)' },
+            { text: "Lennox advertises 'the most precise comfort money can buy.' I agree. If I set 72°, my house is 72°. Not 73, not 71. Always spot on — even during an 118° Phoenix heatwave. The cabinets are still solid, and parts are readily available in Phoenix.", source: 'Fire & Air AZ - Lennox Variable Speed Air Conditioner Review (After Using)' },
+            { text: 'Lennox AC reviews are largely positive and mention durability, reliability, quiet operation, and advanced features like variable-speed compressors, making them a strong fit for comfort-focused buyers.', source: 'The Furnace Outlet - Is Lennox a Good AC Brand?' }
+          ]
+        },
+        decision: {
+          videos: [
+            { title: 'Lennox Elite AC Clean & Review @atlasacrepair', url: 'https://www.youtube.com/watch?v=iDxIKR5xgtY', videoId: 'iDxIKR5xgtY' },
+            { title: 'A Full HVAC Install, In ONE Day (Complete Lennox System)', url: 'https://www.youtube.com/watch?v=3iXiLgYaoDE', videoId: '3iXiLgYaoDE' },
+            { title: 'Lennox Central Air Conditioner - What You Should Know', url: 'https://www.youtube.com/watch?v=IV275LGcN1o', videoId: 'IV275LGcN1o' }
+          ],
+          reviews: [
+            { text: 'Reliable for years! My last Lennox furnace lasted 30 years! This new one is very quiet and works great!', source: 'Lennox ML13KC1 Product Review (Lennox.com)' },
+            { text: 'Lennox has an A+ rating with the Better Business Bureau. We recommend Lennox as a good option for most homeowners, especially if you\'re installing a new AC. The units are relatively affordable, very efficient, and many operate in near‑silent mode.', source: "Today's Homeowner - Lennox Air Conditioner Review" },
+            { text: 'Lennox air conditioner reviews are largely positive and mention durability, reliability, and quiet operation, which makes them a strong choice for homeowners who want long-term performance and comfort.', source: 'Harp Home Services - Are Lennox HVAC Systems Worth It?' }
+          ]
+        },
+        post_purchase: {
+          videos: [
+            { title: 'Lennox Elite AC Clean & Review @atlasacrepair', url: 'https://www.youtube.com/watch?v=iDxIKR5xgtY', videoId: 'iDxIKR5xgtY' },
+            { title: 'Lennox Variable Speed Air Conditioner Review – XP25', url: 'https://www.youtube.com/watch?v=uz9nCexIagI', videoId: 'uz9nCexIagI' }
+          ],
+          reviews: [
+            { text: 'After 6 brutal Phoenix summers, the precise comfort, whisper-quiet operation, and build quality of Lennox\'s variable-speed systems are undeniable. The cabinets still look great, and parts are readily available in Phoenix-area supply houses.', source: 'Fire & Air AZ - Lennox Variable Speed Air Conditioner Review (After Using)' },
+            { text: "If I set 72°, my house is 72°. Always spot on — even during 118° heat. The proprietary thermostat and hub are the Achilles' heel; they're expensive, fragile, and required. But the comfort and efficiency more than make up for it.", source: 'Fire & Air AZ - Lennox Variable Speed Air Conditioner Review (After Using)' },
+            { text: 'Lennox AC units are impressive machines for long-term ownership. The long-term energy savings, solid build quality, and quiet operation justify the premium if you plan to stay in your home for many years.', source: "Today's Homeowner - Lennox Air Conditioner Review" }
+          ]
+        }
+      }
+
+      const stageData = JOURNEY_MEDIA[stage]
+      if (!stageData) {
+        return res.json({ result: { success: false, has_media: false } })
+      }
+
+      if (type === 'videos') {
+        return res.json({
+          result: {
+            success: true,
+            has_media: true,
+            youtube_references: stageData.videos.map(v => ({ ...v, thumbnail_url: `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg` }))
+          }
+        })
+      }
+
+      if (type === 'reviews') {
+        return res.json({
+          result: {
+            success: true,
+            has_media: true,
+            show_reviews: true,
+            reviews: stageData.reviews
+          }
+        })
+      }
+
+      return res.json({ result: { success: false, has_media: false } })
+    }
+
     // For all other tools, validate model exists
     if (!activeModelId) {
       logWarn('[VOICE AGENT] No model selected for tool execution')
@@ -754,6 +850,7 @@ export const executeTools = async (req, res) => {
 
     const allowedTools = [
       'detect_model_intent',
+      'show_journey_media',
       'search_local_knowledge',
       'search_vehicle_knowledge',
       'search_vehicle_images',
