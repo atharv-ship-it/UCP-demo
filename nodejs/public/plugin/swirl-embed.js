@@ -157,7 +157,10 @@
   let pendingMediaEnrichment = null // Media from enrich_with_media tool - rendered after AI response
   let lastShownLennoxCards = [] // Track currently displayed product cards for voice selection
   let lastMentionedCard = null // Last card the AI confirmed — set when user picks one, cleared after checkout card shown
-  let orderCompleted = false // Set true after payment — blocks any further product cards appearing
+  let lastConfirmedCard = null // Sticky — survives grid clears, used as fallback when lastMentionedCard is null at checkout
+  let checkoutPending = false // Set true when "let's get that sorted" fires — waiting for card or click
+  let chosenCardScheduled = false // Set true when chosen card is already scheduled via timeout — blocks regular grid
+  let orderCompleted = false // Set true after actual payment — blocks everything
   let currentInputMode = 'voice' // Global state: 'voice' or 'text'
   let hasRealMicrophone = false // Flag to track if user has real mic (not silent track)
 
@@ -2371,7 +2374,10 @@
    * in its own voice with full context, without polluting conversation history.
    */
   function triggerAISpeak(instruction) {
-    if (!dataChannel || dataChannel.readyState !== 'open') return
+    if (!dataChannel || dataChannel.readyState !== 'open') {
+      console.warn('[triggerAISpeak] DataChannel not open — state:', dataChannel?.readyState)
+      return
+    }
     dataChannel.send(JSON.stringify({
       type: 'response.create',
       response: {
@@ -3314,6 +3320,7 @@
     if (isConnected) return
 
     // Reset session state for a fresh conversation
+    checkoutPending = false
     orderCompleted = false
     lastShownLennoxCards = []
     lastMentionedCard = null
@@ -3740,25 +3747,33 @@
             .toLowerCase()
 
           // Whenever AI mentions a product by name in any message, keep lastMentionedCard current.
+          // Also update lastConfirmedCard — it persists across grid clears as a checkout fallback.
           if (lastShownLennoxCards.length) {
             for (const card of lastShownLennoxCards) {
               const idLower = (card.id || '').toLowerCase()
               const titleWords = (card.title || '').toLowerCase().split(/\s+/)
-              if (idLower && normalizedMsg.includes(idLower)) { lastMentionedCard = card; break }
+              if (idLower && normalizedMsg.includes(idLower)) { lastMentionedCard = card; lastConfirmedCard = card; break }
               const hits = titleWords.filter(w => w.length > 3 && normalizedMsg.includes(w))
-              if (hits.length >= 2) { lastMentionedCard = card; break }
+              if (hits.length >= 2) { lastMentionedCard = card; lastConfirmedCard = card; break }
             }
           }
           // When AI says checkout confirmed phrase, lock out all further product cards immediately,
           // then show the single chosen card. orderCompleted blocks displayLennoxProductCards
           // from rendering anything — including any concurrent show_products tool result.
-          if (/let's get that sorted/.test(normalizedMsg) && lastMentionedCard) {
-            const cardToShow = lastMentionedCard
-            lastMentionedCard = null
+          if (/let's get that sorted/.test(normalizedMsg)) {
             lastShownLennoxCards = []
-            orderCompleted = true
-            console.log('[Lennox] 🎯 AI confirmed purchase — showing chosen card:', cardToShow.id)
-            setTimeout(() => showVoiceConfirmedProductCard(cardToShow), 400)
+            // Use lastMentionedCard first, fall back to lastConfirmedCard if grid was cleared mid-conversation
+            const cardToUse = lastMentionedCard || lastConfirmedCard
+            if (cardToUse) {
+              checkoutPending = false
+              chosenCardScheduled = true
+              lastMentionedCard = null
+              console.log('[Lennox] 🎯 AI confirmed purchase — showing chosen card:', cardToUse.id)
+              setTimeout(() => showVoiceConfirmedProductCard(cardToUse), 400)
+            } else {
+              // Card not yet known — wait for show_products tool result to deliver it.
+              checkoutPending = true
+            }
           }
           break
 
@@ -3905,9 +3920,11 @@
                 displayMedia({ youtube_references: media.youtube_references })
               }
 
-              // Render reviews
+              // Render reviews — route by shape: link cards (has url) vs quote cards (text + source)
               if (media.reviews?.length > 0) {
-                displayReviews({ reviews: media.reviews })
+                const isLinkCards = media.reviews[0]?.url !== undefined
+                if (isLinkCards) displayReviewLinks(media.reviews)
+                else displayReviews({ reviews: media.reviews })
               }
 
               // Render offer card after voice response
@@ -4307,12 +4324,29 @@
         updateModelIndicator(result.model_name)
       }
 
+      // For show_journey_media: render videos/reviews immediately — no queue needed
+      // (AI already spoke before calling the tool; no response.create fires after)
+      if (functionName === 'show_journey_media') {
+        if (result?.youtube_references?.length > 0) {
+          console.log('[WebRTC] 🎬 show_journey_media — rendering videos immediately')
+          displayMedia({ youtube_references: result.youtube_references })
+        }
+        if (result?.reviews?.length > 0) {
+          console.log('[WebRTC] 💬 show_journey_media — rendering reviews immediately')
+          const isLinkCards = result.reviews[0]?.url !== undefined
+          if (isLinkCards) displayReviewLinks(result.reviews)
+          else displayReviews({ reviews: result.reviews })
+        }
+      }
+
       // Queue media content (images, videos, reviews) for rendering AFTER AI response
       // This applies to: enrich_with_media, get_customer_reviews, search_vehicle_images, search_vehicle_knowledge
-      const hasMediaContent = result?.has_media ||
+      const hasMediaContent = functionName !== 'show_journey_media' && (
+        result?.has_media ||
         result?.images?.length > 0 ||
         result?.youtube_references?.length > 0 ||
         (result?.reviews?.length > 0 && (result?.show_reviews || functionName === 'get_customer_reviews'))
+      )
 
       if (hasMediaContent) {
         console.log('[WebRTC] 📦 Queuing media for after AI response:', functionName)
@@ -4482,9 +4516,9 @@
       logDataChannelMessage(outputPayload, 'SEND')
       dataChannel.send(JSON.stringify(outputPayload))
 
-      // For show_products: cards are now visible — the AI already spoke before calling the tool.
-      // Do NOT trigger another response; let the user browse and act on their own terms.
-      if (functionName !== 'show_products') {
+      // For show_products / show_journey_media: cards/media are already visible.
+      // Do NOT trigger another response — the AI already spoke before calling the tool.
+      if (functionName !== 'show_products' && functionName !== 'show_journey_media') {
         await new Promise(resolve => setTimeout(resolve, 100))
         dataChannel.send(JSON.stringify({
           type: 'response.create',
@@ -4969,7 +5003,7 @@
             <span style="font-size:11px;color:#86868b;">${card.rating} (${(card.reviews||0).toLocaleString()})</span>
           </div>
           <div style="font-size:18px;font-weight:700;color:#1d1d1f;margin-bottom:12px;">${card.price_display || '$$$'}</div>
-          <button class="lx-chosen-buy-btn" data-id="${card.id}">Confirm & Buy Now</button>
+          <button class="lx-chosen-buy-btn" data-id="${card.id}">Confirm Purchase</button>
         </div>
       </div>
     `
@@ -4999,6 +5033,7 @@
     // Pin this card as the current selection — so if the AI responds with "let's get that sorted",
     // the checkout detection has the card ready without needing to re-parse the AI's words.
     lastMentionedCard = card
+    lastConfirmedCard = card
     triggerAISpeak(`The customer just clicked on the ${productName}${series} card — they're interested. Speak as their advisor: acknowledge their choice warmly, share one specific compelling reason this is a great pick for them (energy efficiency, noise level, warranty, reliability — pick the most relevant), then naturally invite them to ask anything or take the next step. 1-2 sentences, confident and warm.`)
   }
 
@@ -5203,13 +5238,10 @@
           lastShownLennoxCards = []
           lastMentionedCard = null
 
-          // Step 1: close the checkout overlay, let AI congratulate first
+          // Step 1: close the checkout overlay
           overlay.remove()
 
-          // Step 2: AI celebrates immediately
-          triggerAISpeak(`The customer just completed their purchase of the ${productName} (order ref ${orderIdShort}, arriving by ${deliveryStr}). The order confirmation card is already visible — do NOT read out the details. Speak as their trusted advisor: celebrate this moment genuinely, tell them why they made a great choice, and leave them feeling great about it. 2-3 warm, natural sentences.`)
-
-          // Step 3: show order confirmation card in the overlay after a short delay (so AI speaks first)
+          // Step 2: show order confirmation card, then have AI celebrate
           setTimeout(() => {
             const confirmOverlay = document.createElement('div')
             confirmOverlay.style.cssText = 'position:absolute;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);'
@@ -5266,8 +5298,30 @@
               </div>
             `
             ;(document.getElementById('swirl-ai-voice-modal') || document.body).appendChild(confirmOverlay)
-            confirmOverlay.addEventListener('click', (e) => { if (e.target === confirmOverlay) confirmOverlay.remove() })
-            confirmOverlay.querySelector('#lennox-confirm-done-btn')?.addEventListener('click', () => confirmOverlay.remove())
+
+            const resetPostPurchaseState = () => {
+              orderCompleted = false
+              checkoutPending = false
+              chosenCardScheduled = false
+              lastShownLennoxCards = []
+              lastMentionedCard = null
+              console.log('[Lennox] 🔓 Post-purchase state reset — browsing unlocked')
+            }
+
+            confirmOverlay.addEventListener('click', (e) => {
+              if (e.target === confirmOverlay) {
+                confirmOverlay.remove()
+                resetPostPurchaseState()
+              }
+            })
+            confirmOverlay.querySelector('#lennox-confirm-done-btn')?.addEventListener('click', () => {
+              confirmOverlay.remove()
+              resetPostPurchaseState()
+            })
+
+            // AI celebrates after confirmation card is visible
+            console.log('[Lennox] 🎉 Triggering post-purchase congratulations. DataChannel state:', dataChannel?.readyState)
+            triggerAISpeak(`The customer just completed their purchase of the ${productName}. The order confirmation is on screen. CRITICAL: Do NOT call any tools — no show_journey_media, no show_products, no videos, no reviews. Speak only. Celebrate in one warm sentence, then give one short real-world tip based on the ${productName} specs — something genuinely useful before installation day (e.g. clearing space around the unit, checking electrical capacity, confirming ductwork). Specific to this product, not generic. 2 sentences max.`)
           }, 1800)
 
         } catch (e) {
@@ -5280,7 +5334,18 @@
   }
 
   function displayLennoxProductCards(cards) {
-    if (orderCompleted) return // Order is done — never show product cards again
+    if (orderCompleted) return // Payment done — never show product cards again
+    if (chosenCardScheduled) {
+      // Chosen card already scheduled via timeout — suppress this grid entirely
+      chosenCardScheduled = false
+      return
+    }
+    if (checkoutPending) {
+      // Checkout phrase already fired — show this as the "Your Choice" card instead of the grid
+      checkoutPending = false
+      showVoiceConfirmedProductCard(cards[0])
+      return
+    }
     console.log('[Lennox] Displaying product cards:', cards.length)
     lastShownLennoxCards = cards // Track for voice selection
     clearOnFirstEvent()
@@ -5371,10 +5436,9 @@
                         <span style="color:#f59e0b;font-size:11px;letter-spacing:0.5px;">${starsHtml}</span>
                         <span style="font-size:11px;color:#86868b;">${card.rating} (${(card.reviews||0).toLocaleString()})</span>
                       </div>
-                      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;">
+                      <div style="display:flex;align-items:center;justify-content:space-between;">
                         <span style="font-size:18px;font-weight:700;color:#1d1d1f;">${card.price_display || '$$$'}</span>
                       </div>
-                      <button class="lennox-buy-btn" data-id="${card.id}">Buy Now</button>
                     </div>
                   </div>
                 </div>
@@ -5395,20 +5459,12 @@
 
     // Event delegation — survives Swiper DOM cloning
     container.addEventListener('click', (e) => {
-      const btn = e.target.closest('.lennox-buy-btn')
       const card = e.target.closest('.swirl-lennox-card')
-      if (btn) {
-        // Buy Now → go straight to checkout
-        e.stopPropagation()
-        initiateUCPCheckout(btn.dataset.id)
-      } else if (card) {
-        // Card click → user is interested, tell AI to focus on this product
+      if (card) {
         e.stopPropagation()
         const productId = card.dataset.productId
         const matchedCard = lastShownLennoxCards.find(c => c.id === productId)
-        if (matchedCard) {
-          notifyAIOfCardInterest(matchedCard)
-        }
+        if (matchedCard) notifyAIOfCardInterest(matchedCard)
       }
     })
 
@@ -5534,6 +5590,55 @@
   }
 
   // ===================================================
+  // REVIEW LINK CARDS (journey media — title + source + url)
+  // ===================================================
+
+  function displayReviewLinks(reviews) {
+    if (!reviews?.length) return
+    const messagesContainer = document.querySelector('.swirl-ai-chat-messages')
+    if (!messagesContainer) return
+
+    clearOnFirstEvent()
+
+    const container = document.createElement('div')
+    container.className = 'swirl-ai-response-container'
+    container.innerHTML = `
+      <style>
+        @keyframes lx-link-in { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+        .lx-review-link {
+          display:flex; align-items:flex-start; gap:10px;
+          background:#fff; border:1px solid #e8e8ed; border-radius:12px;
+          padding:12px 14px; cursor:pointer; text-decoration:none;
+          box-shadow:0 1px 4px rgba(0,0,0,0.05); min-width:220px; max-width:260px;
+          transition:box-shadow 0.15s ease, transform 0.15s ease;
+          animation:lx-link-in 0.3s ease both;
+          font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-serif;
+        }
+        .lx-review-link:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,0.1); }
+        .lx-review-link-icon { width:32px;height:32px;border-radius:8px;background:#f5f5f7;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+        .lx-review-link-body { flex:1; min-width:0; }
+        .lx-review-link-source { font-size:10px;color:#86868b;font-weight:500;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px; }
+        .lx-review-link-title { font-size:12px;font-weight:600;color:#1d1d1f;line-height:1.4; }
+      </style>
+      <div style="display:flex;gap:10px;overflow-x:auto;padding:4px 2px;scrollbar-width:none;">
+        ${reviews.map((r, i) => `
+          <a href="${r.url}" target="_blank" rel="noopener" class="lx-review-link" style="animation-delay:${i*0.07}s;">
+            <div class="lx-review-link-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#f59e0b"/></svg>
+            </div>
+            <div class="lx-review-link-body">
+              <div class="lx-review-link-source">${r.source}</div>
+              <div class="lx-review-link-title">${r.title}</div>
+            </div>
+          </a>
+        `).join('')}
+      </div>
+    `
+    messagesContainer.appendChild(container)
+    scrollToBottom()
+  }
+
+  // ===================================================
   // REVIEWS DISPLAY
   // ===================================================
 
@@ -5575,26 +5680,7 @@
           ${reviews
         .map(review => {
           const quote = review.quote || review.text || review.review_text || ''
-          const reviewer = review.reviewer || review.author || review.reviewer_name || 'Anonymous'
-          const date = review.date || ''
-          const avatarType = review.avatarType || 'user'
-
-          // Choose avatar icon based on type
-          const avatarIcon = avatarType === 'youtube' ? `
-            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="13" cy="13" r="12" stroke="white" stroke-width="2"/>
-              <path d="M16.5 13L11 9.5V16.5L16.5 13Z" fill="white"/>
-            </svg>
-          ` : `
-            <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-              <circle cx="13" cy="13" r="12" stroke="white" stroke-width="2"/>
-              <circle cx="13" cy="10" r="3" fill="white"/>
-              <path d="M6 22C6 18.6863 8.68629 16 12 16H14C17.3137 16 20 18.6863 20 22" stroke="white" stroke-width="2"/>
-            </svg>
-          `
-
-          // Format author text with date if available
-          const authorText = date ? `– ${reviewer}-${date}` : `– ${reviewer}`
+          const source = review.source || review.reviewer || review.author || review.reviewer_name || ''
 
           return `
                 <div class="swiper-slide">
@@ -5607,12 +5693,9 @@
                     <div class="swirl-ai-review-content">
                       <p class="swirl-ai-review-text">${quote}</p>
                     </div>
-                    <div class="swirl-ai-review-author">
-                      <div class="swirl-ai-review-author-icon">
-                        ${avatarIcon}
-                      </div>
-                      <p class="swirl-ai-review-author-name">${authorText}</p>
-                    </div>
+                    ${source ? `<div class="swirl-ai-review-author">
+                      <p class="swirl-ai-review-author-name" style="font-size:11px;opacity:0.7;font-style:italic;">${source}</p>
+                    </div>` : ''}
                   </div>
                 </div>
               `
