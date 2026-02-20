@@ -316,7 +316,7 @@ export const getSessionConfig = (voice = 'marin') => {
       type: 'server_vad',
       threshold: 0.85, // Higher threshold = less sensitive to background noise (0.0-1.0) - optimized for noisy café environment
       prefix_padding_ms: 300,
-      silence_duration_ms: 1200, // Shorter for more natural turn-taking
+      silence_duration_ms: 2000, // Enough for AI to complete full responses without clipping
       create_response: true
     },
     input_audio_transcription: {
